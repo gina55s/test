@@ -8,7 +8,7 @@ zinit:
 
 kernel:
 	@echo "Download 0-OS kernel"
-	wget https://bootstrap.grid.tf/kernel/zero-os-development-test-v2-generic.efi -O testv2.efi
+	wget https://bootstrap.grid.tf/kernel/zero-os-development-test-v2-generic-4a69fdd390.efi -O testv2.efi
 	ln -sf testv2.efi test.efi
 
 start:
