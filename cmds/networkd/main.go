@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"os"
@@ -10,7 +9,6 @@ import (
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"github.com/threefoldtech/zbus"
 	"github.com/threefoldtech/testv2/modules/network"
 	"github.com/threefoldtech/testv2/modules/zinit"
 )
@@ -25,36 +23,45 @@ func main() {
 	flag.Parse()
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 
+	if err := network.LinkUp("lo"); err != nil {
+		log.Error().Err(err).Msg("failed to bring interface lo up")
+	}
+
 	err := backoff.Retry(bootstrap, backoff.NewExponentialBackOff())
 	if err != nil {
 		return
 	}
 
-	if err := os.MkdirAll(*root, 0750); err != nil {
-		log.Fatal().Msgf("fail to create module root: %s", err)
-	}
+	// if err := os.MkdirAll(*root, 0750); err != nil {
+	// 	log.Fatal().Msgf("fail to create module root: %s", err)
+	// }
 
-	netAlloc := network.NewTestNetResourceAllocator()
-	networker := network.NewNetworker(netAlloc)
+	// netAlloc := network.NewTestNetResourceAllocator()
+	// networker := network.NewNetworker(netAlloc)
 
-	server, err := zbus.NewRedisServer(module, *broker, 1)
-	if err != nil {
-		log.Fatal().Msgf("fail to connect to message broker server: %v", err)
-	}
+	// server, err := zbus.NewRedisServer(module, *broker, 1)
+	// if err != nil {
+	// 	log.Fatal().Msgf("fail to connect to message broker server: %v", err)
+	// }
 
-	server.Register(zbus.ObjectID{Name: module, Version: "0.0.1"}, networker)
+	// server.Register(zbus.ObjectID{Name: module, Version: "0.0.1"}, networker)
 
-	log.Info().
-		Str("broker", *broker).
-		Uint("worker nr", 1).
-		Msg("starting networkd module")
+	// log.Info().
+	// 	Str("broker", *broker).
+	// 	Uint("worker nr", 1).
+	// 	Msg("starting networkd module")
 
-	if err := server.Run(context.Background()); err != nil {
-		log.Error().Err(err).Msg("unexpected error")
-	}
+	// if err := server.Run(context.Background()); err != nil {
+	// 	log.Error().Err(err).Msg("unexpected error")
+	// }
 }
 
 func bootstrap() error {
+	z := zinit.New("")
+	if err := z.Connect(); err != nil {
+		return err
+	}
+
 	log.Info().Msg("Start network bootstrap")
 	if err := network.Bootstrap(); err != nil {
 		return err
@@ -71,5 +78,5 @@ func bootstrap() error {
 		return err
 	}
 
-	return zinit.Monitor("dhcp_test")
+	return z.Monitor("dhcp_test")
 }
