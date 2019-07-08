@@ -336,7 +336,7 @@ func (p *btrfsPool) FsType() string {
 }
 
 // Type of the physical storage used for this pool
-func (p *btrfsPool) Type() modules.DeviceType {
+func (p *btrfsPool) Type() DeviceType {
 	// We only create heterogenous pools for now
 	return p.devices[0].DiskType
 }
