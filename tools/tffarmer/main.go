@@ -51,7 +51,7 @@ func main() {
 			Action: func(c *cli.Context) error {
 				seedPath := c.String("seed")
 
-				keyPair, err := generateKeyPair(seedPath)
+				farmID, err := generateKeyPair(seedPath)
 				if err != nil {
 					return err
 				}
@@ -59,13 +59,12 @@ func main() {
 				if name == "" {
 					return fmt.Errorf("A farm name needs to be specified")
 				}
-				farm := identity.NewFarm(name, keyPair)
-				if err := idStore.RegisterFarm(farm, name); err != nil {
+				if err := idStore.RegisterFarm(farmID, name); err != nil {
 					return err
 				}
 				fmt.Println("Farm registered successfully")
 				fmt.Printf("Name: %s\n", name)
-				fmt.Printf("Identity: %s\n", farm.Identity())
+				fmt.Printf("Identity: %s\n", farmID.Identity())
 				return nil
 			},
 		},
@@ -126,7 +125,7 @@ func main() {
 			Name:      "configure-public",
 			Category:  "network",
 			Usage:     "configure the public interface of a node",
-			ArgsUsage: "farm_id",
+			ArgsUsage: "node ID",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "ip",
@@ -140,10 +139,6 @@ func main() {
 					Name:  "iface",
 					Usage: "name of the interface to use as public interface",
 				},
-				cli.StringFlag{
-					Name:  "node",
-					Usage: "node id to use as exit node",
-				},
 			},
 			Action: func(c *cli.Context) error {
 				ip, ipnet, err := net.ParseCIDR(c.String("ip"))
@@ -153,12 +148,27 @@ func main() {
 				ipnet.IP = ip
 				gw := net.ParseIP(c.String("gw"))
 				iface := c.String("iface")
-				node := c.String("node")
+				node := c.Args().First()
 
-				if err := db.ConfigureExitNode(strID(node), ipnet, gw, iface); err != nil {
+				if err := db.ConfigurePublicIface(strID(node), ipnet, gw, iface); err != nil {
 					return err
 				}
-				fmt.Printf("exit node configured\n")
+				fmt.Printf("public interface configured on node %s\n", node)
+				return nil
+			},
+		},
+		{
+			Name:      "select-exit",
+			Category:  "network",
+			Usage:     "mark a node as being an exit",
+			ArgsUsage: "node ID",
+			Action: func(c *cli.Context) error {
+				node := c.Args().First()
+
+				if err := db.SelectExitNode(strID(node)); err != nil {
+					return err
+				}
+				fmt.Printf("Node %s marked as exit node\n", node)
 				return nil
 			},
 		},
@@ -207,15 +217,15 @@ func loadFarmID(seedPath string) (identity.Identifier, error) {
 	}
 
 	log.Debug().Msgf("loading seed from %s", seedPath)
-	keypair, err := identity.LoadSeed(seedPath)
+	farmID, err := identity.LoadSeed(seedPath)
 	if err != nil {
 		return nil, err
 	}
-	farm := identity.NewFarm("", keypair)
-	return farm, nil
+
+	return farmID, nil
 }
 
-func generateKeyPair(seedPath string) (*identity.KeyPair, error) {
+func generateKeyPair(seedPath string) (identity.Identifier, error) {
 
 	if seedPath != "" {
 		log.Debug().Msgf("loading seed from %s", seedPath)
