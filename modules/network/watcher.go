@@ -4,66 +4,74 @@ import (
 	"context"
 	"time"
 
-	"github.com/pkg/errors"
+	"github.com/threefoldtech/testv2/modules/identity"
+
 	"github.com/rs/zerolog/log"
 
 	"github.com/threefoldtech/testv2/modules"
 )
 
-type watcher struct {
-	netID modules.NetID
-	db    TNoDB
+// Watcher is an object that is responsible to
+// watch the tnodb for update networks object
+type Watcher struct {
+	nodeID identity.Identifier
+	db     TNoDB
 }
 
-func NewWatcher(netID modules.NetID, db TNoDB) *watcher {
-	return &watcher{
-		netID: netID,
-		db:    db,
+// NewWatcher creates a new watcher for a specific node
+func NewWatcher(nodeID identity.Identifier, db TNoDB) *Watcher {
+	return &Watcher{
+		nodeID: nodeID,
+		db:     db,
 	}
 }
 
-func (w *watcher) Watch(ctx context.Context) (<-chan *modules.Network, error) {
-	nw, err := w.db.GetNetwork(w.netID)
-	if err != nil {
-		return nil, errors.Wrapf(err, "network watcher fail to get network %s", w.netID)
-	}
-	version := nw.Version
+// Watch starts a gorountine that will poll the tnodb for new version
+// of a network object
+// it returns a channel of network ID that have a new version
+func (w *Watcher) Watch(ctx context.Context) <-chan modules.NetID {
+	versions := make(map[modules.NetID]uint32)
 
-	ch := make(chan *modules.Network)
+	ch := make(chan modules.NetID)
 	go func() {
 		defer close(ch)
 
 		for {
-			select {
-			case <-ctx.Done():
-				break
-			case <-time.After(time.Minute * 5):
-			}
-
-			nw, err := w.db.GetNetwork(w.netID)
+			newVersions, err := w.db.GetNetworksVersion(w.nodeID)
 			if err != nil {
 				log.Error().
-					Str("network", string(w.netID)).
-					Err(err).Msg("fail to watch network")
+					Err(err).Msg("fail to get network versions")
 				continue
 			}
 
-			if nw.Version > version {
-				log.Info().
-					Str("network", string(w.netID)).
-					Uint32("current", version).
-					Uint32("new", nw.Version).
-					Msg("new network version found")
-				version = nw.Version
+			toSend := []modules.NetID{}
+
+			for netID, newVersion := range newVersions {
+				v, ok := versions[netID]
+				if !ok {
+					toSend = append(toSend, netID)
+				} else if newVersion > v {
+					toSend = append(toSend, netID)
+				}
+				versions[netID] = newVersion
 
 				select {
 				case <-ctx.Done():
 					break
-				case ch <- nw:
+				default:
+					for _, netID := range toSend {
+						ch <- netID
+					}
 				}
+			}
+
+			select {
+			case <-ctx.Done():
+				break
+			case <-time.After(time.Second * 20):
 			}
 		}
 	}()
 
-	return ch, nil
+	return ch
 }
