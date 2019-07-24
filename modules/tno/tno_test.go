@@ -52,8 +52,10 @@ func TestConfigureExitResource(t *testing.T) {
 	key, err := wgtypes.GeneratePrivateKey()
 	require.NoError(t, err)
 
+	publicIP := net.ParseIP("2a02:1802:5e::223")
+
 	err = Configure(n, []Opts{
-		ConfigureExitResource("DLFF6CAshvyhCrpyTHq1dMd6QP6kFyhrVGegTgudk6xk", allocation, key, 48),
+		ConfigureExitResource("DLFF6CAshvyhCrpyTHq1dMd6QP6kFyhrVGegTgudk6xk", allocation, publicIP, key, 48),
 	})
 	require.NoError(t, err)
 	assert.Equal(t, 1, len(n.Resources))
@@ -65,7 +67,7 @@ func TestConfigureExitResource(t *testing.T) {
 	assert.Equal(t, 1, len(n.Resources[0].Peers))
 	assert.Equal(t, "2a02:1802:5e:afba::/64", n.Resources[0].Peers[0].Prefix.String())
 	assert.Equal(t, modules.ConnTypeWireguard, n.Resources[0].Peers[0].Type)
-	assert.Equal(t, "2a02:1802:5e::afba", n.Resources[0].Peers[0].Connection.IP.String())
+	assert.Equal(t, "2a02:1802:5e::223", n.Resources[0].Peers[0].Connection.IP.String())
 	assert.Equal(t, uint16(1600), n.Resources[0].Peers[0].Connection.Port)
 	assert.Equal(t, key.PublicKey().String(), n.Resources[0].Peers[0].Connection.Key)
 
@@ -79,6 +81,7 @@ func TestConfigureExitResource(t *testing.T) {
 func TestAddNode(t *testing.T) {
 	type args struct {
 		nodeID     string
+		farmID     string
 		allocation *net.IPNet
 		key        wgtypes.Key
 		publicIP   net.IP
@@ -96,6 +99,7 @@ func TestAddNode(t *testing.T) {
 			name: "public",
 			args: args{
 				nodeID: "DLFF6CAshvyhCrpyTHq1dMd6QP6kFyhrVGegTgudk6xk",
+				farmID: "7koUE4nRbdsqEbtUVBhx3qvRqF58gfeHGMRGJxjqwfZi",
 				allocation: &net.IPNet{
 					IP:   net.ParseIP("2a02:1802:5e:afba::"),
 					Mask: net.CIDRMask(64, 128),
@@ -109,6 +113,7 @@ func TestAddNode(t *testing.T) {
 			name: "private",
 			args: args{
 				nodeID: "DLFF6CAshvyhCrpyTHq1dMd6QP6kFyhrVGegTgudk6xk",
+				farmID: "7koUE4nRbdsqEbtUVBhx3qvRqF58gfeHGMRGJxjqwfZi",
 				allocation: &net.IPNet{
 					IP:   net.ParseIP("2a02:1802:5e:afba::"),
 					Mask: net.CIDRMask(64, 128),
@@ -124,7 +129,7 @@ func TestAddNode(t *testing.T) {
 			n := &modules.Network{}
 
 			err = Configure(n, []Opts{
-				AddNode(tt.args.nodeID, tt.args.allocation, tt.args.key, tt.args.publicIP, tt.args.port),
+				AddNode(tt.args.nodeID, tt.args.farmID, tt.args.allocation, tt.args.key, tt.args.publicIP, tt.args.port),
 			})
 			assert.Error(t, err, "AddNode should return an error if the network does not have a PrefixZero configured")
 
@@ -134,7 +139,7 @@ func TestAddNode(t *testing.T) {
 			}
 
 			err = Configure(n, []Opts{
-				AddNode(tt.args.nodeID, tt.args.allocation, tt.args.key, tt.args.publicIP, tt.args.port),
+				AddNode(tt.args.nodeID, tt.args.farmID, tt.args.allocation, tt.args.key, tt.args.publicIP, tt.args.port),
 			})
 
 			require.NoError(t, err)
