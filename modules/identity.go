@@ -1,7 +1,7 @@
 package modules
 
 //go:generate mkdir -p stubs
-//go:generate zbusc -module identity -version 0.0.1 -name manager -package stubs github.com/threefoldtech/testv2/modules+IdentityManager stubs/identity_stub.go
+//go:generate zbusc -module identityd -version 0.0.1 -name manager -package stubs github.com/threefoldtech/testv2/modules+IdentityManager stubs/identity_stub.go
 
 // Identifier is the interface that defines
 // how an object can be used as an identity
@@ -33,5 +33,9 @@ type IdentityManager interface {
 	// Verify reports whether sig is a valid signature of message by publicKey.
 	Verify(message, sig []byte) error
 
-	// Encrypt, Decrypt ?
+	// Encrypt encrypts message with the public key of the node
+	Encrypt(message []byte) ([]byte, error)
+
+	// Decrypt decrypts message with the private of the node
+	Decrypt(message []byte) ([]byte, error)
 }

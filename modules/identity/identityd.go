@@ -12,11 +12,6 @@ import (
 	"github.com/threefoldtech/testv2/modules/kernel"
 )
 
-const (
-	// SeedPath default seed path
-	SeedPath = "/var/cache/seed.txt"
-)
-
 type identityManager struct {
 	key KeyPair
 }
@@ -72,4 +67,14 @@ func (d *identityManager) Sign(message []byte) ([]byte, error) {
 // Verify reports whether sig is a valid signature of message by publicKey.
 func (d *identityManager) Verify(message, sig []byte) error {
 	return crypto.Verify(d.key.PublicKey, message, sig)
+}
+
+// Encrypt encrypts message with the public key of the node
+func (d *identityManager) Encrypt(message []byte) ([]byte, error) {
+	return crypto.Encrypt(message, d.key.PublicKey)
+}
+
+// Decrypt decrypts message with the private of the node
+func (d *identityManager) Decrypt(message []byte) ([]byte, error) {
+	return crypto.Decrypt(message, d.key.PrivateKey)
 }
