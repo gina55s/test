@@ -1,82 +1,264 @@
-# Network module
+# Network
 
-## ZBus
+- [How does a farmer configure a node as exit node](#How-does-a-farmer-configure-a-node-as-exit-node)
+- [How to create a user private network](#How-to-create-a-user-private-network)
 
-Network module is available on zbus over the following channel
+## How does a farmer configure a node as exit node
 
-| module | object | version |
-|--------|--------|---------|
-| network|[network](#interface)| 0.0.1|
+For the network of the grid to work properly, some of the nodes in the grid need to be configured as "exit nodes".  An "exit node" is a node that has a publicly accessible IP address and that is responsible routing IPv6 traffic, or proxy IPv4 traffic.
 
-## Interface
+A farmer that wants to configure one of his nodes as "exit node", needs to register it in the TNODB. The node will then automatically detect it has been configured to be an exit node and do the necessary network configuration to start acting as one.
 
-```go
-//Networker is the interface for the network module
-type Networker interface {
-	ApplyNetResource(Network) (string, error)
-	DeleteNetResource(Network) error
-	Namespace(NetID) (string, error)
+At the current state of the development, we have a [TNODB mock](../../tools/tnodb_mock) server and a [tffarmer CLI](../../tools/tffarm) tool that can be used to do these configuration.
+
+Here is an example of how a farmer could register one of his node as "exit node":
+
+1. Farmer needs to create its farm identity
+
+```bash
+tffarmer register --seed myfarm.seed "mytestfarm"
+Farm registered successfully
+Name: mytestfarm
+Identity: ZF6jtCblLhTgAqp2jvxKkOxBgSSIlrRh1mRGiZaRr7E=
+```
+
+2. Boot your nodes with your farm identity specified in the kernel parameters.
+
+Take that farm identity create at step 1 and boot your node with the kernel parameters `farmer_id=<identity>`
+
+for your test farm that would be `farmer_id=ZF6jtCblLhTgAqp2jvxKkOxBgSSIlrRh1mRGiZaRr7E=`
+
+Once the node is booted, it will automatically register itself as being part of your farm into the [TNODB](../../tools/tnodb_mock) server.
+
+You can verify that you node registered itself properly by listing all the node from the TNODB by doing a GET request on the `/nodes` endpoints:
+
+```bash
+curl http://tnodb_addr/nodes
+[{"node_id":"kV3u7GJKWA7Js32LmNA5+G3A0WWnUG9h+5gnL6kr6lA=","farm_id":"ZF6jtCblLhTgAqp2jvxKkOxBgSSIlrRh1mRGiZaRr7E=","Ifaces":[]}]
+```
+
+3. Farmer needs to specify its public allocation range to the TNODB
+
+```bash
+tffarmer give-alloc 2a02:2788:0000::/32 --seed myfarm.seed
+prefix registered successfully
+```
+
+4. Configure the public interface of the exit node if needed
+
+In this step the farmer will tell his node how it needs to connect to the public internet. This configuration depends on the farm network setup, this is why this is up to the farmer to provide the detail on how the node needs to configure itself.
+
+In a first phase, we create the internet access in 2 ways:
+
+- the node is fully public: you don't need to configure a public interface, you can skip this step
+- the node has a management interface and a nic for public
+    then `configure-public` is required, and the farmer has the public interface connected to a specific public segment with a router to the internet in front.
+
+```bash
+tffarmer configure-public --ip 172.20.0.2/24 --gw 172.20.0.1 --iface eth1 kV3u7GJKWA7Js32LmNA5+G3A0WWnUG9h+5gnL6kr6lA=
+#public interface configured on node kV3u7GJKWA7Js32LmNA5+G3A0WWnUG9h+5gnL6kr6lA=
+```
+
+
+We still need to figure out a way to get the routes properly installed, we'll do static on the toplevel router for now to do a demo.
+
+The node is now configured to be used as an exit node.
+
+5. Mark a node as being an exit node
+
+The farmer then needs to select which node he agrees to use as an exit node for the grid
+
+```bash
+tffarmer select-exit kV3u7GJKWA7Js32LmNA5+G3A0WWnUG9h+5gnL6kr6lA=
+#Node kV3u7GJKWA7Js32LmNA5+G3A0WWnUG9h+5gnL6kr6lA= marked as exit node
+```
+
+## How to create a user private network
+
+1. Choose an exit node
+2. Request an new allocation from the farm of the exit node
+  - a GET request on the tnodb_mock at `/allocations/{farm_id}` will give you a new allocation
+3. Creates the network schema
+
+Steps 1 and 2 are easy enough to be done even manually but step 3 requires a deep knowledge of how networking works
+as well as the specific requirement of 0-OS network system. 
+This is why we provide a tool that simplify this process for you, [tfuser](../../tools/tfuser).
+
+Using tfuser creating a network becomes trivial:
+```bash
+# creates a new network with node DLFF6CAshvyhCrpyTHq1dMd6QP6kFyhrVGegTgudk6xk as exit node
+# and output the result into network.json
+tfuser generate --output network.json network create --node DLFF6CAshvyhCrpyTHq1dMd6QP6kFyhrVGegTgudk6xk
+```
+
+network.json will now contains something like:
+
+```json
+{
+  "id": "",
+  "tenant": "",
+  "reply-to": "",
+  "type": "network",
+  "data": {
+    "network_id": "J1UHHAizuCU6s9jPax1i1TUhUEQzWkKiPhBA452RagEp",
+    "resources": [
+      {
+        "node_id": {
+          "id": "DLFF6CAshvyhCrpyTHq1dMd6QP6kFyhrVGegTgudk6xk",
+          "farmer_id": "7koUE4nRbdsqEbtUVBhx3qvRqF58gfeHGMRGJxjqwfZi",
+          "reachability_v4": "public",
+          "reachability_v6": "public"
+        },
+        "prefix": "2001:b:a:8ac6::/64",
+        "link_local": "fe80::8ac6/64",
+        "peers": [
+          {
+            "type": "wireguard",
+            "prefix": "2001:b:a:8ac6::/64",
+            "Connection": {
+              "ip": "2a02:1802:5e::223",
+              "port": 1600,
+              "key": "PK1L7n+5Fo1znwD/Dt9lAupL19i7a6zzDopaEY7uOUE=",
+              "private_key": "9220e4e29f0acbf3bd7ef500645b78ae64b688399eb0e9e4e7e803afc4dd72418a1c5196208cb147308d7faf1212758042f19f06f64bad6ffe1f5ed707142dc8cc0a67130b9124db521e3a65e4aee18a0abf00b6f57dd59829f59662"
+            }
+          }
+        ],
+        "exit_point": true
+      }
+    ],
+    "prefix_zero": "2001:b:a::/64",
+    "exit_point": {
+      "ipv4_conf": null,
+      "ipv4_dnat": null,
+      "ipv6_conf": {
+        "addr": "fe80::8ac6/64",
+        "gateway": "fe80::1",
+        "metric": 0,
+        "iface": "public"
+      },
+      "ipv6_allow": []
+    },
+    "allocation_nr": 0,
+    "version": 0
+  }
 }
 ```
 
-## Zero-OS networking
+Which is a valid network schema. This network only contains a single exit node though, so not really useful.
+Let's add another node to the network:
 
-### Some First Explanations
+```bash
+tfuser generate --output network.json network --input network.json add --node 4hpUjrbYS4YeFbvLoeSR8LGJKVkB97JyS83UEhFUU3S4
+```
 
-Zero-OS is meant to provide services in the Threefold grid, and with grid, we naturally understand that the nodes (or their hosted services) need to be reachable for external users or for each other. So networking in 0-OS is a big thing, even when you assume that 'the network' is ubiquitous and always there, many things need to happen correctly before having a netWORK.  
-For this, apart from all the other absolutely wonderful services in 0-OS, there is the network daemon. If it doesn't succeed it's bootstrap, nothing else will, and 0-OS will stop there.
+result looks like:
 
-So it (the network daemon, that is)
-  - Configures the Node's initial network configuration, so that the Node can register itself.  For now we assume that the Node is connected to a network (ethernet segment) that provides IP addresses over DHCP, be it IPv4 or IPv6, or that there is a Routing Avertisement (RA) daemon for IPv6 running on that network. [TODO 0-boot setup](network/zeroboot.md)  
-  Only once it has received an IP Address, most other internal services will be able to start. ([John Gage](https://www.networkcomputing.com/cloud-infrastructure/network-computer-again) from Sun said that `The Network is the Computer`, here that is absolutely true)
+```json
+{
+  "id": "",
+  "tenant": "",
+  "reply-to": "",
+  "type": "network",
+  "data": {
+    "network_id": "J1UHHAizuCU6s9jPax1i1TUhUEQzWkKiPhBA452RagEp",
+    "resources": [
+      {
+        "node_id": {
+          "id": "DLFF6CAshvyhCrpyTHq1dMd6QP6kFyhrVGegTgudk6xk",
+          "farmer_id": "7koUE4nRbdsqEbtUVBhx3qvRqF58gfeHGMRGJxjqwfZi",
+          "reachability_v4": "public",
+          "reachability_v6": "public"
+        },
+        "prefix": "2001:b:a:8ac6::/64",
+        "link_local": "fe80::8ac6/64",
+        "peers": [
+          {
+            "type": "wireguard",
+            "prefix": "2001:b:a:8ac6::/64",
+            "Connection": {
+              "ip": "2a02:1802:5e::223",
+              "port": 1600,
+              "key": "PK1L7n+5Fo1znwD/Dt9lAupL19i7a6zzDopaEY7uOUE=",
+              "private_key": "9220e4e29f0acbf3bd7ef500645b78ae64b688399eb0e9e4e7e803afc4dd72418a1c5196208cb147308d7faf1212758042f19f06f64bad6ffe1f5ed707142dc8cc0a67130b9124db521e3a65e4aee18a0abf00b6f57dd59829f59662"
+            }
+          },
+          {
+            "type": "wireguard",
+            "prefix": "2001:b:a:b744::/64",
+            "Connection": {
+              "ip": "<nil>",
+              "port": 0,
+              "key": "3auHJw3XHFBiaI34C9pB/rmbomW3yQlItLD4YSzRvwc=",
+              "private_key": "96dc64ff11d05e8860272b91bf09d52d306b8ad71e5c010c0ccbcc8d8d8f602c57a30e786d0299731b86908382e4ea5a82f15b41ebe6ce09a61cfb8373d2024c55786be3ecad21fe0ee100339b5fa904961fbbbd25699198c1da86c5"
+            }
+          }
+        ],
+        "exit_point": true
+      },
+      {
+        "node_id": {
+          "id": "4hpUjrbYS4YeFbvLoeSR8LGJKVkB97JyS83UEhFUU3S4",
+          "farmer_id": "7koUE4nRbdsqEbtUVBhx3qvRqF58gfeHGMRGJxjqwfZi",
+          "reachability_v4": "hidden",
+          "reachability_v6": "hidden"
+        },
+        "prefix": "2001:b:a:b744::/64",
+        "link_local": "fe80::b744/64",
+        "peers": [
+          {
+            "type": "wireguard",
+            "prefix": "2001:b:a:8ac6::/64",
+            "Connection": {
+              "ip": "2a02:1802:5e::223",
+              "port": 1600,
+              "key": "PK1L7n+5Fo1znwD/Dt9lAupL19i7a6zzDopaEY7uOUE=",
+              "private_key": "9220e4e29f0acbf3bd7ef500645b78ae64b688399eb0e9e4e7e803afc4dd72418a1c5196208cb147308d7faf1212758042f19f06f64bad6ffe1f5ed707142dc8cc0a67130b9124db521e3a65e4aee18a0abf00b6f57dd59829f59662"
+            }
+          },
+          {
+            "type": "wireguard",
+            "prefix": "2001:b:a:b744::/64",
+            "Connection": {
+              "ip": "<nil>",
+              "port": 0,
+              "key": "3auHJw3XHFBiaI34C9pB/rmbomW3yQlItLD4YSzRvwc=",
+              "private_key": "96dc64ff11d05e8860272b91bf09d52d306b8ad71e5c010c0ccbcc8d8d8f602c57a30e786d0299731b86908382e4ea5a82f15b41ebe6ce09a61cfb8373d2024c55786be3ecad21fe0ee100339b5fa904961fbbbd25699198c1da86c5"
+            }
+          }
+        ],
+        "exit_point": false
+      }
+    ],
+    "prefix_zero": "2001:b:a::/64",
+    "exit_point": {
+      "ipv4_conf": null,
+      "ipv4_dnat": null,
+      "ipv6_conf": {
+        "addr": "fe80::8ac6/64",
+        "gateway": "fe80::1",
+        "metric": 0,
+        "iface": "public"
+      },
+      "ipv6_allow": []
+    },
+    "allocation_nr": 0,
+    "version": 1
+  }
+}
+```
 
-  - Notifies [zinit](https://github.com/threefoldtech/zinit/blob/master/docs/readme.md) (the services orchestrator in 0-OS) that it can register the dhcp client as a permanent process on the intitially discovered NIC (Network Interface Card) and that zinit can start other processes, one of which takes care of registering the node to the grid. (more elaborate explanation about that in [identity service](../identity/readme.md).
+Our network schema is now ready, but before we can provision it onto a node, we need to sign it and send it to the bcdb.
+To be able to sign it we need to have a pair of key. You can use `tfuser id` command to create an identity:
 
-  - Listens in on the zbus for new or updated Network Resources (NR) that get sent by the provision daemon and applies them.
+```bash
+tfuser id --output user.seed
+```
 
-[Here some thought dumps from where we started working this out](../../specs/network/Requirements.md)
+We can now provision the network on both nodes:
 
-### Jargon
-
-So. Let's have some abbreviations settled first:
-
-  - #### Node : simple  
-  TL;DR: Computer.  
-  A Node is a computer with CPU, Memory, Disks (or SSD's, NVMe) connected to _A_ network that has Internet access. (i.e. it can reach www.google.com, just like you on your phone, at home)  
-  That Node will, once it has received an IP address (IPv4 or IPv6), register itself when it's new, or confirm it's identity and it's online-ness (for lack of a better word).
-
-  - #### TNo : Tenant Network object. [The gory details here](https://github.com/threefoldtech/testv2/blob/master/modules/network.go)  
-  TL;DR: The Network Description.  
-  We named it so, because it is a datastructure that describes the __whole__ network a user can request (or setup).  
-  That network is a virtualized overlay network.  
-  Basically that means that transfer of data in that network *always* is encrypted, protected from prying eyes, and __resources in that network can only communicate with each other__ **unless** there is a special rule that allows access. Be it by allowing accesss through firewall rules, *and/or* through a proxy (a service that forwards requests on behalf of, and ships replies back to the client).
-
-  - #### A Tno has an ExitPoint.  
-  TL;DR: Any network needs to get out *somewhere*. [Some more explanation](exitpoints.md)  
-  A Node that happens to live in an Internet Network (to differentiate from a Tenant network), more explictly, a network that is directly routable and accessible (unlike a home network), can be specified as an Exit Node.  
-  That Node can then host Exitpoints for Tenant Networks.  
-  Let's explain that.  
-  Entities in a Tenant Network, where a TN being an overlay network, can only communicate with peers that are part of that network. At a certain point there is a gateway needed for this network to communicate with the 'external' world (BBI): that is an ExitPoint. ExitPoints can only live in Nodes designated for that purpose, namely Exit Nodes. Exit Nodes can only live in networks that are bidirectionally reachable for THE Internet (BBI).  
-  An ExitPoint is *always* a part of a Network Resource (see below).
-
-  - #### Network Resource: (NR)  
-  TL;DR: the Node-local part of a TNo.  
-  The main building block of a TNo; i.e. each service of a user in a Node lives in an NR.  
-  Each Node hosts User services, whatever type of service that is. Every service in that specific node will always be solely part of the Tenant's Network. (read that twice).  
-  So: A Network Resource is the thing that interconnects all other network resources of the TN (Tenant Network), and provides routing/firewalling for these interconnects, including the default route to the BBI (Big Bad Internet), aka ExitPoint.  
-  All User services that run in a Node are in some way or another connected to the Network Resource (NR), which will provide ip packet forwarding and firewalling to all other network resources (including the Exitpoint) of the TN (Tenant Network) of the user. (read that three times, and the last time, read it slowly and out loud)
-
-  -  #### IPAM IP Adress management
-  TL;DR Give IP Adresses to containers attached to the NR's bridge.
-  When the provisioner wants to start a container that doesn't attach itself to the NR's network namespace (cool that you can do that), but instead needs to create a veth pair and attach it to the NR's preconfigured bridge, the veth end in the container needs to get an IP address in the NR's Prefix (IPv6) and subnet (IPv4).  
-  The NR has a deterministic IPv4 subnet definition that is coupled to the 7-8th byte of the IPv6 Prefix, where it then can use an IPv4 in the /24 CIDR that is assigned to the NR.
-  As for the IPv6 address, you can choose to have a mac address derived IPv6 address, or/and a fixed address based on the same IPv4 address you gave to the container's interface.  
-  Note: 
-    - a veth pair is a concept in linux that creates 2 virtual network interfaces that are interconnected with a virtual cable. what goes in on one end of the pair, gets out on the other end, and vice-versa.
-    - a bridge in linux is a concept of a virtual switch that can contain virtual interfaces. When you attach an interface to a bridge, it is a virtual switch with one port. You can add as many interfaces to that virtual switch as you like.
-
-## Nodes, ExitNodes, ExitPoints, Network Resources and how they are related.
-
-
-
-
+```bash
+tfuser provision --schema network.json \
+--node  DLFF6CAshvyhCrpyTHq1dMd6QP6kFyhrVGegTgudk6xk \
+--node 4hpUjrbYS4YeFbvLoeSR8LGJKVkB97JyS83UEhFUU3S4 \
+--seed user.seed
+```
