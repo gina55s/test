@@ -1,72 +1,43 @@
 package provision
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"os"
-	"path/filepath"
 	"sync"
 )
 
-// FSStore is a in reservation store
-// using the filesystem as backend
-type FSStore struct {
+// MemStore is a in memory reservation store
+type MemStore struct {
 	sync.RWMutex
-	root string
+	m map[string]*Reservation
 }
 
-// NewFSStore creates a in memory reservation store
-func NewFSStore(root string) (*FSStore, error) {
-	if err := os.RemoveAll(root); err != nil {
-		return nil, err
+// NewMemStore creates a in memory reservation store
+func NewMemStore() *MemStore {
+	return &MemStore{
+		m: make(map[string]*Reservation),
 	}
-	if err := os.MkdirAll(root, 0770); err != nil {
-		return nil, err
-	}
-	return &FSStore{
-		root: root,
-	}, nil
 }
 
-// Add a reservation to the store
-func (s *FSStore) Add(r *Reservation) error {
+// Add a reservation ID to the store
+func (s *MemStore) Add(r *Reservation) error {
 	s.Lock()
 	defer s.Unlock()
 
-	// ensure direcory exists
-	if err := os.MkdirAll(s.root, 0770); err != nil {
-		return err
+	if _, ok := s.m[r.ID]; ok {
+		return fmt.Errorf("reservation %s already in the store", r.ID)
 	}
 
-	f, err := os.OpenFile(filepath.Join(s.root, r.ID), os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0660)
-	if err != nil {
-		if os.IsExist(err) {
-			return fmt.Errorf("reservation %s already in the store", r.ID)
-		}
-		return err
-	}
-	defer f.Close()
-
-	if err := json.NewEncoder(f).Encode(r); err != nil {
-		return err
-	}
-
+	s.m[r.ID] = r
 	return nil
 }
 
-// Remove a reservation from the store
-func (s *FSStore) Remove(id string) error {
+// Remove a reservation ID from the store
+func (s *MemStore) Remove(id string) error {
 	s.Lock()
 	defer s.Unlock()
 
-	path := filepath.Join(s.root, id)
-	err := os.Remove(path)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil
-		}
-		return err
+	if _, ok := s.m[id]; ok {
+		delete(s.m, id)
 	}
 
 	return nil
@@ -74,59 +45,34 @@ func (s *FSStore) Remove(id string) error {
 
 // GetExpired returns all id the the reservations that are expired
 // at the time of the function call
-func (s *FSStore) GetExpired() ([]*Reservation, error) {
+func (s *MemStore) GetExpired() ([]*Reservation, error) {
 	s.RLock()
 	defer s.RUnlock()
 
-	infos, err := ioutil.ReadDir(s.root)
-	if err != nil {
-		return nil, err
-	}
-
-	rs := make([]*Reservation, 0, len(infos))
-	for _, info := range infos {
-		if info.IsDir() {
+	output := make([]*Reservation, 0, len(s.m)/2)
+	for _, r := range s.m {
+		if !r.expired() {
 			continue
 		}
-
-		r, err := s.Get(info.Name())
-		if err != nil {
-			return nil, err
-		}
-		if r.expired() {
-			rs = append(rs, r)
-		}
-
+		output = append(output, r)
 	}
-
-	return rs, nil
+	return output, nil
 }
 
 // Get retrieves a specific reservation using its ID
 // if returns a non nil error if the reservation is not present in the store
-func (s *FSStore) Get(id string) (*Reservation, error) {
-	s.RLock()
-	defer s.RUnlock()
+func (s *MemStore) Get(id string) (*Reservation, error) {
+	s.Lock()
+	defer s.Unlock()
 
-	path := filepath.Join(s.root, id)
-	f, err := os.Open(path)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, fmt.Errorf("reservation %s not found", id)
-		}
-		return nil, err
+	r, ok := s.m[id]
+	if !ok {
+		return nil, fmt.Errorf("reservation not found")
 	}
-	defer f.Close()
-
-	r := &Reservation{}
-	if err := json.NewDecoder(f).Decode(r); err != nil {
-		return nil, err
-	}
-
 	return r, nil
 }
 
 // Close makes sure the backend of the store is closed properly
-func (s *FSStore) Close() error {
+func (s *MemStore) Close() error {
 	return nil
 }
