@@ -1,6 +1,6 @@
 module github.com/threefoldtech/testv2/cmds/identityd
 
-go 1.12
+go 1.13
 
 replace github.com/threefoldtech/testv2/modules => ../../modules/
 
