@@ -1,6 +1,6 @@
 set -x
 
-DEFAULT_FLIST=azmy/test_ref_heads_master.flist
+DEFAULT_FLIST=azmy/test-refs_heads_master.flist
 
 # bootflist reads the boot flist name from kernel cmd
 # TODO: this should probably be not allowed at somepoint to
