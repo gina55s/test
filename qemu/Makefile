@@ -12,4 +12,4 @@ kernel:
 	ln -sf testv2.efi test.efi
 
 start:
-	bash vm.sh -n node1
+	bash vm.sh -n node1 -c "runmode=development"
