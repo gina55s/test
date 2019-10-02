@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/threefoldtech/testv2/modules/network/types"
+	"github.com/threefoldtech/test/pkg/network/types"
 )
 
 func Test_selectPublicIP(t *testing.T) {

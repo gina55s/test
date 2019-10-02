@@ -7,7 +7,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/threefoldtech/testv2/modules/schema"
+	"github.com/threefoldtech/test/pkg/schema"
 )
 
 func handle(file, pkg, dir string) error {

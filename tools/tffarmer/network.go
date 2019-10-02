@@ -4,36 +4,11 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/threefoldtech/testv2/modules"
-	"github.com/threefoldtech/testv2/modules/network/types"
+	"github.com/threefoldtech/test/pkg"
+	"github.com/threefoldtech/test/pkg/network/types"
 
-	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli"
 )
-
-func giveAlloc(c *cli.Context) error {
-
-	farmID, err := loadFarmID(c.String("seed"))
-	if err != nil {
-		log.Error().Err(err).Msg("impossible to load farm id, user register command first")
-		return err
-	}
-
-	alloc := c.Args().First()
-	_, allocation, err := net.ParseCIDR(alloc)
-	if err != nil {
-		log.Error().Err(err).Msg("prefix format not valid, use ip/mask")
-		return err
-	}
-
-	if err := db.RegisterAllocation(farmID, allocation); err != nil {
-		log.Error().Err(err).Msg("failed to register prefix")
-		return err
-	}
-
-	fmt.Println("prefix registered successfully")
-	return nil
-}
 
 func configPublic(c *cli.Context) error {
 	var (
@@ -89,7 +64,7 @@ func configPublic(c *cli.Context) error {
 
 	node := c.Args().First()
 
-	if err := db.SetPublicIface(modules.StrIdentifier(node), &types.PubIface{
+	if err := db.SetPublicIface(pkg.StrIdentifier(node), &types.PubIface{
 		Master: iface,
 		IPv4:   nv4,
 		IPv6:   nv6,
@@ -99,15 +74,5 @@ func configPublic(c *cli.Context) error {
 		return err
 	}
 	fmt.Printf("public interface configured on node %s\n", node)
-	return nil
-}
-
-func selectExit(c *cli.Context) error {
-	node := c.Args().First()
-
-	if err := db.SelectExitNode(modules.StrIdentifier(node)); err != nil {
-		return err
-	}
-	fmt.Printf("Node %s marked as exit node\n", node)
 	return nil
 }

@@ -14,9 +14,9 @@ import (
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-	"github.com/threefoldtech/testv2/modules/capacity"
-	"github.com/threefoldtech/testv2/modules/network/types"
-	"github.com/threefoldtech/testv2/modules/provision"
+	"github.com/threefoldtech/test/pkg/capacity"
+	"github.com/threefoldtech/test/pkg/network/types"
+	"github.com/threefoldtech/test/pkg/provision"
 )
 
 type farmInfo struct {

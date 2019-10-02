@@ -12,11 +12,11 @@ import (
 	"github.com/cenkalti/backoff/v3"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"github.com/threefoldtech/testv2/modules/environment"
-	"github.com/threefoldtech/testv2/modules/gedis"
-	"github.com/threefoldtech/testv2/modules/identity"
-	"github.com/threefoldtech/testv2/modules/utils"
-	"github.com/threefoldtech/testv2/modules/version"
+	"github.com/threefoldtech/test/pkg/environment"
+	"github.com/threefoldtech/test/pkg/gedis"
+	"github.com/threefoldtech/test/pkg/identity"
+	"github.com/threefoldtech/test/pkg/utils"
+	"github.com/threefoldtech/test/pkg/version"
 )
 
 const (

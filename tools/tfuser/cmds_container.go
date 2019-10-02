@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
+	"net"
 	"strings"
 
-	"github.com/threefoldtech/testv2/modules"
+	"github.com/threefoldtech/test/pkg"
 
-	"github.com/threefoldtech/testv2/modules/provision"
+	"github.com/threefoldtech/test/pkg/provision"
 	"github.com/urfave/cli"
 )
 
@@ -30,7 +31,10 @@ func generateContainer(c *cli.Context) error {
 		Interactive:  c.Bool("corex"),
 		Mounts:       mounts,
 		Network: provision.Network{
-			NetwokID: modules.NetID(c.String("network")),
+			NetwokID: pkg.NetID(c.String("network")),
+			IPs: []net.IP{
+				net.ParseIP(c.String("ip")),
+			},
 		},
 	}
 

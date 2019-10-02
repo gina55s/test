@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
-	"github.com/threefoldtech/testv2/modules/identity"
+	"github.com/threefoldtech/test/pkg/identity"
 	"github.com/urfave/cli"
 )
 

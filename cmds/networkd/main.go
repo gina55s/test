@@ -12,17 +12,17 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/threefoldtech/zbus"
-	"github.com/threefoldtech/testv2/modules"
-	"github.com/threefoldtech/testv2/modules/environment"
-	"github.com/threefoldtech/testv2/modules/gedis"
-	"github.com/threefoldtech/testv2/modules/network"
-	"github.com/threefoldtech/testv2/modules/network/ifaceutil"
-	"github.com/threefoldtech/testv2/modules/network/ndmz"
-	"github.com/threefoldtech/testv2/modules/network/tnodb"
-	"github.com/threefoldtech/testv2/modules/network/types"
-	"github.com/threefoldtech/testv2/modules/stubs"
-	"github.com/threefoldtech/testv2/modules/utils"
-	"github.com/threefoldtech/testv2/modules/version"
+	"github.com/threefoldtech/test/pkg"
+	"github.com/threefoldtech/test/pkg/environment"
+	"github.com/threefoldtech/test/pkg/gedis"
+	"github.com/threefoldtech/test/pkg/network"
+	"github.com/threefoldtech/test/pkg/network/ifaceutil"
+	"github.com/threefoldtech/test/pkg/network/ndmz"
+	"github.com/threefoldtech/test/pkg/network/tnodb"
+	"github.com/threefoldtech/test/pkg/network/types"
+	"github.com/threefoldtech/test/pkg/stubs"
+	"github.com/threefoldtech/test/pkg/utils"
+	"github.com/threefoldtech/test/pkg/version"
 	"github.com/vishvananda/netlink"
 )
 
@@ -157,7 +157,7 @@ func getLocalInterfaces() ([]types.IfaceInfo, error) {
 	return output, err
 }
 
-func publishIfaces(id modules.Identifier, db network.TNoDB) error {
+func publishIfaces(id pkg.Identifier, db network.TNoDB) error {
 	ifaces, err := getLocalInterfaces()
 	if err != nil {
 		return err
@@ -176,7 +176,7 @@ func publishIfaces(id modules.Identifier, db network.TNoDB) error {
 	return backoff.RetryNotify(f, backoff.NewExponentialBackOff(), errHandler)
 }
 
-func startServer(ctx context.Context, broker string, networker modules.Networker) error {
+func startServer(ctx context.Context, broker string, networker pkg.Networker) error {
 
 	server, err := zbus.NewRedisServer(module, broker, 1)
 	if err != nil {

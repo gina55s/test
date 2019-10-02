@@ -6,8 +6,8 @@ package main
 // 	"net"
 // 	"time"
 
-// 	"github.com/threefoldtech/testv2/modules/network/ip"
-// 	"github.com/threefoldtech/testv2/modules/network/types"
+// 	"github.com/threefoldtech/test/pkg/network/ip"
+// 	"github.com/threefoldtech/test/pkg/network/types"
 
 // 	"github.com/dspinhirne/netaddr-go"
 // )

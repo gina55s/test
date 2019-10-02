@@ -6,13 +6,13 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
-	"github.com/threefoldtech/testv2/modules"
-	"github.com/threefoldtech/testv2/modules/network"
-	"github.com/threefoldtech/testv2/modules/network/namespace"
-	"github.com/threefoldtech/testv2/modules/network/types"
+	"github.com/threefoldtech/test/pkg"
+	"github.com/threefoldtech/test/pkg/network"
+	"github.com/threefoldtech/test/pkg/network/namespace"
+	"github.com/threefoldtech/test/pkg/network/types"
 )
 
-func watchPubIface(ctx context.Context, nodeID modules.Identifier, db network.TNoDB, ifaceVersion int) <-chan *types.PubIface {
+func watchPubIface(ctx context.Context, nodeID pkg.Identifier, db network.TNoDB, ifaceVersion int) <-chan *types.PubIface {
 	var currentVersion = ifaceVersion
 
 	ch := make(chan *types.PubIface)
