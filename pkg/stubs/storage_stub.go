@@ -1,8 +1,8 @@
 package stubs
 
 import (
-	"github.com/threefoldtech/zbus"
-	"github.com/threefoldtech/test/pkg"
+	zbus "github.com/threefoldtech/zbus"
+	pkg "github.com/threefoldtech/test/pkg"
 )
 
 type StorageModuleStub struct {
