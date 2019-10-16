@@ -60,23 +60,13 @@ func newFlister(root string, storage pkg.VolumeAllocater, commander commander) p
 		root = defaultRoot
 	}
 
-	if err := os.MkdirAll(root, 0755); err != nil {
-		panic(err)
-	}
-
-	// ensure we have proper permission for existing directory
-	if err := os.Chmod(root, 0755); err != nil {
+	if err := os.MkdirAll(root, 0750); err != nil {
 		panic(err)
 	}
 
 	// prepare directory layout for the module
 	for _, path := range []string{"flist", "cache", "mountpoint", "pid", "log"} {
-		p := filepath.Join(root, path)
-		if err := os.MkdirAll(p, 0755); err != nil {
-			panic(err)
-		}
-		// ensure we have proper permission for existing directory
-		if err := os.Chmod(p, 0755); err != nil {
+		if err := os.MkdirAll(filepath.Join(root, path), 0770); err != nil {
 			panic(err)
 		}
 	}
@@ -126,7 +116,7 @@ func (f *flistModule) Mount(url, storage string) (string, error) {
 	}
 
 	mountpoint := filepath.Join(f.mountpoint, rnd)
-	if err := os.MkdirAll(mountpoint, 0755); err != nil {
+	if err := os.MkdirAll(mountpoint, 0770); err != nil {
 		return "", err
 	}
 	pidPath := filepath.Join(f.pid, rnd) + ".pid"
@@ -159,11 +149,6 @@ func (f *flistModule) Mount(url, storage string) (string, error) {
 	// and scan the logs after "mount ready"
 	if err := waitMountedLog(time.Second*5, logPath); err != nil {
 		sublog.Error().Err(err).Msg("0-fs daemon did not start properly")
-		return "", err
-	}
-
-	// workaround until https://github.com/threefoldtech/test/issues/330 is fixed
-	if err := os.Chmod(mountpoint, 0755); err != nil {
 		return "", err
 	}
 
@@ -277,7 +262,7 @@ func (f *flistModule) saveFlist(r io.Reader) (string, error) {
 
 	hash := fmt.Sprintf("%x", h.Sum(nil))
 	path := filepath.Join(f.flist, hash)
-	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(path), 0770); err != nil {
 		return "", err
 	}
 
