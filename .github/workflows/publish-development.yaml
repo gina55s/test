@@ -40,7 +40,7 @@ jobs:
         user: tf-autobuilder
         root: archive
         token: ${{ secrets.HUB_JWT }}
-        name: test-${{ github.sha }}.flist
+        name: test:${{ github.sha }}.flist
 
     - name: Set name of the development build
       id: setname
@@ -55,7 +55,7 @@ jobs:
         user: tf-test
         root: archive
         token: ${{ secrets.HUB_JWT }}
-        name: tf-autobuilder/test-${{ github.sha }}.flist
+        name: tf-autobuilder/test:${{ github.sha }}.flist
         target: ${{ steps.setname.outputs.build }}
 
     - name: Readlink of current development build
