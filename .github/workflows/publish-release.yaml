@@ -50,7 +50,7 @@ jobs:
         user: tf-autobuilder
         root: archive
         token: ${{ secrets.HUB_JWT }}
-        name: test:${{ github.sha }}.flist
+        name: test-${{ github.sha }}.flist
 
     - name: Promote flist (${{ github.ref }})
       if: success()
@@ -59,8 +59,8 @@ jobs:
         action: promote
         user: tf-test
         token: ${{ secrets.HUB_JWT }}
-        name: tf-autobuilder/test:${{ github.sha }}.flist
-        target: test-${{ github.ref }}.flist
+        name: tf-autobuilder/test-${{ github.sha }}.flist
+        target: test:${{ github.ref }}.flist
     
     - name: Symlink flist (development)
       if: success()
