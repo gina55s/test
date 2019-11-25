@@ -7,9 +7,10 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/cenkalti/backoff"
+	"github.com/cenkalti/backoff/v3"
 	"github.com/rs/zerolog/log"
 
+	"github.com/threefoldtech/test/pkg/app"
 	"github.com/threefoldtech/test/pkg/network"
 	"github.com/threefoldtech/test/pkg/network/ifaceutil"
 
@@ -18,6 +19,8 @@ import (
 )
 
 func main() {
+	app.Initialize()
+
 	var (
 		ver bool
 	)

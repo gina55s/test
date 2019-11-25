@@ -6,7 +6,6 @@ import (
 	"github.com/containernetworking/plugins/pkg/ns"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
-	"github.com/threefoldtech/test/pkg/network/ifaceutil"
 	"github.com/threefoldtech/test/pkg/network/namespace"
 	"github.com/threefoldtech/test/pkg/network/types"
 	"github.com/vishvananda/netlink"
@@ -30,7 +29,6 @@ func getPublicIface() (string, error) {
 			}
 
 			ifaceIndex = public.Attrs().ParentIndex
-
 			return nil
 		}); err != nil {
 			return "", err
@@ -41,21 +39,18 @@ func getPublicIface() (string, error) {
 			return "", errors.Wrapf(err, "failed to get link by index %d", ifaceIndex)
 		}
 		ifaceName = master.Attrs().Name
-
 	} else {
-		// since we are a fully public node
-		// get the name of the interface that has the default gateway
+		test, err := netlink.LinkByName("test")
+		if err != nil {
+			return "", errors.Wrap(err, "failed to get test link")
+		}
+		// find the name of the interface attached to test bridge
 		links, err := netlink.LinkList()
 		if err != nil {
 			return "", errors.Wrap(err, "failed to list interfaces")
 		}
 		for _, link := range links {
-			has, _, err := ifaceutil.HasDefaultGW(link)
-			if err != nil {
-				return "", errors.Wrapf(err, "failed to inspect default gateway of iface %s", link.Attrs().Name)
-			}
-
-			if has {
+			if link.Attrs().MasterIndex == test.Attrs().Index && link.Type() == "device" {
 				ifaceName = link.Attrs().Name
 				break
 			}

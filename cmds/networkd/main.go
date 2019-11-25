@@ -11,6 +11,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/threefoldtech/zbus"
 	"github.com/threefoldtech/test/pkg"
+	"github.com/threefoldtech/test/pkg/app"
 	"github.com/threefoldtech/test/pkg/environment"
 	"github.com/threefoldtech/test/pkg/gedis"
 	"github.com/threefoldtech/test/pkg/network"
@@ -28,6 +29,8 @@ const redisSocket = "unix:///var/run/redis.sock"
 const module = "network"
 
 func main() {
+	app.Initialize()
+
 	var (
 		root   string
 		broker string

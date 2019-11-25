@@ -8,6 +8,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/threefoldtech/zbus"
+	"github.com/threefoldtech/test/pkg/app"
 	"github.com/threefoldtech/test/pkg/container"
 	"github.com/threefoldtech/test/pkg/utils"
 	"github.com/threefoldtech/test/pkg/version"
@@ -16,6 +17,7 @@ import (
 const module = "container"
 
 func main() {
+	app.Initialize()
 
 	var (
 		moduleRoot    string

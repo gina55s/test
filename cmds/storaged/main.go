@@ -7,6 +7,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/threefoldtech/zbus"
+	"github.com/threefoldtech/test/pkg/app"
 	"github.com/threefoldtech/test/pkg/storage"
 	"github.com/threefoldtech/test/pkg/utils"
 	"github.com/threefoldtech/test/pkg/version"
@@ -18,6 +19,8 @@ const (
 )
 
 func main() {
+	app.Initialize()
+
 	var (
 		msgBrokerCon string
 		workerNr     uint
