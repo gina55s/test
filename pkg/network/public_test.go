@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/threefoldtech/test/pkg"
 	"github.com/threefoldtech/test/pkg/network/namespace"
 	"github.com/threefoldtech/test/pkg/network/types"
 )
@@ -26,6 +27,6 @@ func TestCreatePublicNS(t *testing.T) {
 		require.NoError(t, err)
 	}()
 
-	err := CreatePublicNS(iface)
+	err := CreatePublicNS(iface, pkg.StrIdentifier(""))
 	require.NoError(t, err)
 }
