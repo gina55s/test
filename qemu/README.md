@@ -130,7 +130,7 @@ where `$yournic` is your wired interface (`ip -br link`)
 1. In order to not wreak havoc with your existing network setup (NetworkManager cruft),   it's better to split your nic, so that the rest keeps on working
 
 ```bash
-sudo ip link add link $yournic name fortest type macvlan mode passthru
+sudo ip link add link $yournic name fortest type macvlan mode bridge
 sudo sysctl -w net.ipv6.conf.fortest.disable_ipv6=1
 sudo ip link set fortest master test0
 sudo ip link set fortest up

@@ -79,7 +79,7 @@ func getLocalInterfaces() ([]types.IfaceInfo, error) {
 			continue
 		}
 
-		_, gw, err := ifaceutil.HasDefaultGW(link, netlink.FAMILY_ALL)
+		_, gw, err := ifaceutil.HasDefaultGW(link)
 		if err != nil {
 			return nil, err
 		}
