@@ -97,7 +97,7 @@ sudo dnsmasq --strict-order \
     --interface=test0 \
     --bind-interfaces \
     --dhcp-range=192.168.123.20,192.168.123.50 \
-    --dhcp-range=::1000,::1fff,constructor,test0,ra-stateless,12h \
+    --dhcp-range=::1000,::1fff,constructor:test0,ra-stateless,12h \
     --conf-file="" \
     --pid-file=/var/run/qemu-dnsmasq-test0.pid \
     --dhcp-leasefile=/var/run/qemu-dnsmasq-test0.leases \
@@ -130,7 +130,7 @@ where `$yournic` is your wired interface (`ip -br link`)
 1. In order to not wreak havoc with your existing network setup (NetworkManager cruft),   it's better to split your nic, so that the rest keeps on working
 
 ```bash
-sudo ip link add link $yournic name fortest type macvlan mode bridge
+sudo ip link add link $yournic name fortest type macvlan mode passthru
 sudo sysctl -w net.ipv6.conf.fortest.disable_ipv6=1
 sudo ip link set fortest master test0
 sudo ip link set fortest up
