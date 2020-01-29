@@ -377,9 +377,18 @@ func copyRecursive(source string, destination string, skip ...string) error {
 			if err := os.MkdirAll(dest, info.Mode()); err != nil {
 				return err
 			}
-		} else {
+		} else if info.Mode().IsRegular() {
 			// regular file (or other types that we don't handle)
 			if err := copyFile(dest, path); err != nil {
+				return err
+			}
+		} else if (info.Mode() & os.ModeSymlink) == os.ModeSymlink {
+			target, err := os.Readlink(path)
+			if err != nil {
+				return err
+			}
+			log.Debug().Str("link", dest).Str("target", target).Msg("Linking")
+			if err := os.Symlink(dest, target); err != nil && !os.IsExist(err) {
 				return err
 			}
 		}
