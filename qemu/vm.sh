@@ -5,7 +5,7 @@ debug=0
 reset=0
 image=test.efi
 kernelargs=""
-bridge=test
+bridge=test0
 graphics="-nographic -nodefaults"
 smp=1
 
