@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/threefoldtech/test/pkg/network/types"
 	"github.com/vishvananda/netlink"
 )
 
 // NodeIDv1 returns the node ID as it was calculated in 0-OS v1
 func NodeIDv1() (string, error) {
-	test, err := netlink.LinkByName(DefaultBridge)
+	test, err := netlink.LinkByName(types.DefaultBridge)
 	if err != nil {
 		return "", err
 	}

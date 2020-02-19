@@ -14,6 +14,7 @@ import (
 	"github.com/threefoldtech/test/pkg/environment"
 	"github.com/threefoldtech/test/pkg/gedis"
 	"github.com/threefoldtech/test/pkg/network"
+	"github.com/threefoldtech/test/pkg/network/bootstrap"
 	"github.com/threefoldtech/test/pkg/network/ndmz"
 	"github.com/threefoldtech/test/pkg/network/tnodb"
 	"github.com/threefoldtech/test/pkg/network/types"
@@ -43,7 +44,7 @@ func main() {
 		version.ShowAndExit(false)
 	}
 
-	if err := network.DefaultBridgeValid(); err != nil {
+	if err := bootstrap.DefaultBridgeValid(); err != nil {
 		log.Fatal().Err(err).Msg("invalid setup")
 	}
 
