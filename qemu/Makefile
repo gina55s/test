@@ -9,10 +9,8 @@ zinit:
 kernel:
 	@echo "Download 0-OS kernel"
 	wget https://bootstrap.grid.tf/kernel/zero-os-development-test-v2-generic.efi -O test.efi
-	ln -sf test.efi test.efi
 
 start:
 	bash vm.sh -n node1 -c "runmode=dev farmer_id=$(FARMERID)"
-
 test:
 	bash vm.sh -n node1 -c "runmode=test farmer_id=$(FARMERID)"
