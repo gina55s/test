@@ -11,7 +11,6 @@ import (
 	"github.com/threefoldtech/test/pkg/app"
 	"github.com/threefoldtech/test/pkg/capacity"
 	"github.com/threefoldtech/test/pkg/environment"
-	"github.com/threefoldtech/test/pkg/gedis"
 	"github.com/threefoldtech/test/pkg/monitord"
 	"github.com/threefoldtech/test/pkg/stubs"
 	"github.com/threefoldtech/test/pkg/utils"
@@ -161,16 +160,6 @@ func bcdbClient() (capacity.Store, error) {
 		return nil, errors.Wrap(err, "failed to parse node environment")
 	}
 
-	// use the bcdb mock for dev and test
-	if env.RunningMode == environment.RunningDev {
-		return capacity.NewHTTPStore(env.BcdbURL), nil
-	}
+	return capacity.NewHTTPStore(env.BcdbURL), nil
 
-	// use gedis for production bcdb
-	store, err := gedis.New(env.BcdbURL, env.BcdbPassword)
-	if err != nil {
-		return nil, errors.Wrap(err, "fail to connect to BCDB")
-	}
-
-	return capacity.NewBCDBStore(store), nil
 }
