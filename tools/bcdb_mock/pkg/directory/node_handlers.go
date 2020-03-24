@@ -2,13 +2,14 @@ package directory
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/rs/zerolog/log"
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/threefoldtech/test/pkg/capacity"
-	"github.com/threefoldtech/test/pkg/network/types"
 	"github.com/threefoldtech/test/tools/bcdb_mock/models"
 	generated "github.com/threefoldtech/test/tools/bcdb_mock/models/generated/directory"
 	"github.com/threefoldtech/test/tools/bcdb_mock/mw"
@@ -32,6 +33,9 @@ func (s *NodeAPI) registerNode(r *http.Request) (interface{}, mw.Response) {
 	n.PublicConfig = nil
 	db := mw.Database(r)
 	if _, err := s.Add(r.Context(), db, n); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, mw.NotFound(fmt.Errorf("farm with id:%d does not exists", n.FarmId))
+		}
 		return nil, mw.Error(err)
 	}
 
@@ -69,16 +73,16 @@ func (s *NodeAPI) listNodes(r *http.Request) (interface{}, mw.Response) {
 		return nil, mw.Error(err)
 	}
 
-	pages := fmt.Sprintf("%d", models.NrPages(total, *pager.Limit))
+	pages := fmt.Sprintf("%d", models.Pages(pager, total))
 	return nodes, mw.Ok().WithHeader("Pages", pages)
 }
 
 func (s *NodeAPI) registerCapacity(r *http.Request) (interface{}, mw.Response) {
 	x := struct {
-		Capacity   generated.TfgridDirectoryNodeResourceAmount1 `json:"capacity,omitempty"`
-		DMI        dmi.DMI                                      `json:"dmi,omitempty"`
-		Disks      capacity.Disks                               `json:"disks,omitempty"`
-		Hypervisor []string                                     `json:"hypervisor,omitempty"`
+		Capacity   generated.ResourceAmount `json:"capacity,omitempty"`
+		DMI        dmi.DMI                  `json:"dmi,omitempty"`
+		Disks      capacity.Disks           `json:"disks,omitempty"`
+		Hypervisor []string                 `json:"hypervisor,omitempty"`
 	}{}
 
 	defer r.Body.Close()
@@ -106,7 +110,7 @@ func (s *NodeAPI) registerIfaces(r *http.Request) (interface{}, mw.Response) {
 
 	defer r.Body.Close()
 
-	var input []generated.TfgridDirectoryNodeIface1
+	var input []generated.Iface
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		return nil, mw.BadRequest(err)
 	}
@@ -121,25 +125,16 @@ func (s *NodeAPI) registerIfaces(r *http.Request) (interface{}, mw.Response) {
 }
 
 func (s *NodeAPI) configurePublic(r *http.Request) (interface{}, mw.Response) {
-	var iface types.PubIface
+	var iface generated.PublicIface
 
 	defer r.Body.Close()
 	if err := json.NewDecoder(r.Body).Decode(&iface); err != nil {
 		return nil, mw.BadRequest(err)
 	}
 
-	cfg := generated.TfgridDirectoryNodePublicIface1{
-		Gw4:    iface.GW4,
-		Gw6:    iface.GW6,
-		Ipv4:   iface.IPv4.ToSchema(),
-		Ipv6:   iface.IPv6.ToSchema(),
-		Master: iface.Master,
-		Type:   generated.TfgridDirectoryNodePublicIface1TypeMacvlan,
-	}
-
 	nodeID := mux.Vars(r)["node_id"]
 	db := mw.Database(r)
-	if err := s.SetPublicConfig(r.Context(), db, nodeID, cfg); err != nil {
+	if err := s.SetPublicConfig(r.Context(), db, nodeID, iface); err != nil {
 		return nil, mw.Error(err)
 	}
 
@@ -172,7 +167,7 @@ func (s *NodeAPI) updateUptimeHandler(r *http.Request) (interface{}, mw.Response
 	defer r.Body.Close()
 
 	input := struct {
-		Uptime uint64
+		Uptime uint64 `json:"uptime"`
 	}{}
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		return nil, mw.BadRequest(err)
@@ -193,7 +188,7 @@ func (s *NodeAPI) updateReservedResources(r *http.Request) (interface{}, mw.Resp
 	//return nil, mw.Error(fmt.Errorf("not implemented"))
 	defer r.Body.Close()
 
-	var resources generated.TfgridDirectoryNodeResourceAmount1
+	var resources generated.ResourceAmount
 
 	if err := json.NewDecoder(r.Body).Decode(&resources); err != nil {
 		return nil, mw.BadRequest(err)
