@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/rs/zerolog/log"
-	"github.com/threefoldtech/test/tools/bcdb_mock/models/generated/workloads"
+	"github.com/threefoldtech/test/tools/explorer/models/generated/workloads"
 	"gopkg.in/yaml.v2"
 
 	"github.com/threefoldtech/test/pkg/schema"

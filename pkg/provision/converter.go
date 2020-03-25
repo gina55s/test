@@ -9,7 +9,7 @@ import (
 	"github.com/threefoldtech/test/pkg"
 	"github.com/threefoldtech/test/pkg/container/logger"
 	"github.com/threefoldtech/test/pkg/network/types"
-	"github.com/threefoldtech/test/tools/bcdb_mock/models/generated/workloads"
+	"github.com/threefoldtech/test/tools/explorer/models/generated/workloads"
 )
 
 // ContainerToProvisionType converts TfgridReservationContainer1 to Container
