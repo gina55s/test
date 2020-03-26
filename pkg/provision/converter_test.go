@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/threefoldtech/test/pkg/network/types"
-	"github.com/threefoldtech/test/tools/explorer/models/generated/workloads"
+	"github.com/threefoldtech/test/tools/bcdb_mock/models/generated/workloads"
 
 	"github.com/threefoldtech/test/pkg"
 

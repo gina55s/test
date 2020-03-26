@@ -7,9 +7,11 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/threefoldtech/test/pkg"
 	"github.com/threefoldtech/test/pkg/app"
 	"github.com/threefoldtech/test/pkg/environment"
+	"github.com/threefoldtech/test/tools/client"
 
 	"github.com/threefoldtech/test/pkg/stubs"
 	"github.com/threefoldtech/test/pkg/utils"
@@ -90,7 +92,7 @@ func main() {
 	nodeID := identity.NodeID()
 
 	// to get reservation from tnodb
-	cl, err := app.ExplorerClient()
+	cl, err := bcdbClient()
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to instantiate BCDB client")
 	}
@@ -144,4 +146,14 @@ type store interface {
 	provision.ReservationGetter
 	provision.ReservationPoller
 	provision.Feedbacker
+}
+
+// instantiate the proper client based on the running mode
+func bcdbClient() (*client.Client, error) {
+	env, err := environment.Get()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to parse node environment")
+	}
+
+	return client.NewClient(env.BcdbURL)
 }

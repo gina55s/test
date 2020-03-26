@@ -6,7 +6,7 @@ import (
 	"net/url"
 
 	"github.com/threefoldtech/test/pkg/schema"
-	"github.com/threefoldtech/test/tools/explorer/models/generated/phonebook"
+	"github.com/threefoldtech/test/tools/bcdb_mock/models/generated/phonebook"
 )
 
 type httpPhonebook struct {

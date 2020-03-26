@@ -5,7 +5,7 @@ import (
 	"net"
 
 	"github.com/threefoldtech/test/pkg/schema"
-	"github.com/threefoldtech/test/tools/explorer/models/generated/directory"
+	"github.com/threefoldtech/test/tools/bcdb_mock/models/generated/directory"
 
 	"github.com/urfave/cli"
 )
