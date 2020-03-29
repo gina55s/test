@@ -6,10 +6,11 @@ import (
 
 	"github.com/threefoldtech/test/pkg/capacity"
 	"github.com/threefoldtech/test/pkg/capacity/dmi"
+	"github.com/threefoldtech/test/pkg/identity"
 	"github.com/threefoldtech/test/pkg/schema"
-	"github.com/threefoldtech/test/tools/bcdb_mock/models/generated/directory"
-	"github.com/threefoldtech/test/tools/bcdb_mock/models/generated/phonebook"
-	"github.com/threefoldtech/test/tools/bcdb_mock/models/generated/workloads"
+	"github.com/threefoldtech/test/tools/explorer/models/generated/directory"
+	"github.com/threefoldtech/test/tools/explorer/models/generated/phonebook"
+	"github.com/threefoldtech/test/tools/explorer/models/generated/workloads"
 )
 
 // Client structure
@@ -100,8 +101,8 @@ func Page(page, size int) *Pager {
 }
 
 // NewClient creates a new client
-func NewClient(u string) (*Client, error) {
-	h, err := newHTTPClient(u)
+func NewClient(u string, kp identity.KeyPair) (*Client, error) {
+	h, err := newHTTPClient(u, kp)
 	if err != nil {
 		return nil, err
 	}

@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
-	"strconv"
 	"time"
 
 	"github.com/pkg/errors"
@@ -17,6 +16,7 @@ import (
 	"github.com/threefoldtech/test/pkg/schema"
 	"github.com/threefoldtech/test/tools/explorer/models"
 	generated "github.com/threefoldtech/test/tools/explorer/models/generated/workloads"
+	"github.com/threefoldtech/test/tools/explorer/mw"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -45,25 +45,26 @@ const (
 	Deleted = generated.NextActionDeleted
 )
 
-// ApplyQueryFilter parese the query string
-func ApplyQueryFilter(r *http.Request, filter ReservationFilter) (ReservationFilter, error) {
+// ReservationQuery type to parse reservation query string
+type ReservationQuery struct {
+	CustomerID int
+	NextAction int
+}
+
+// Parse parese the query string
+func (rq *ReservationQuery) Parse(r *http.Request) mw.Response {
 	var err error
 	customerid, err := models.QueryInt(r, "customer_tid")
 	if err != nil {
-		return nil, errors.Wrap(err, "customer_tid should be an integer")
+		return mw.BadRequest(errors.Wrap(err, "customer_tid should be an integer"))
 	}
-	if customerid != 0 {
-		filter = filter.WithCustomerID(int(customerid))
+	rq.CustomerID = int(customerid)
+	nextaction, err := models.QueryInt(r, "next_action")
+	if err != nil {
+		return mw.BadRequest(errors.Wrap(err, "next_action should be an integer"))
 	}
-	sNextAction := r.FormValue("next_action")
-	if len(sNextAction) != 0 {
-		nextAction, err := strconv.ParseInt(sNextAction, 10, 0)
-		if err != nil {
-			return nil, errors.Wrap(err, "next_action should be an integer")
-		}
-		filter = filter.WithNextAction(generated.NextActionEnum(nextAction))
-	}
-	return filter, nil
+	rq.NextAction = int(nextaction)
+	return nil
 }
 
 // ReservationFilter type
@@ -121,6 +122,17 @@ func (f ReservationFilter) Or(o ReservationFilter) ReservationFilter {
 			Value: bson.A{f, o},
 		},
 	}
+}
+
+// WithReservationQuery add filter based in query string
+func (f ReservationFilter) WithReservationQuery(q ReservationQuery) ReservationFilter {
+	if q.CustomerID > 0 {
+		f = f.WithCustomerID(q.CustomerID)
+	}
+	if q.NextAction > 0 {
+		f = f.WithNextAction(generated.NextActionEnum(q.NextAction))
+	}
+	return f
 }
 
 // Get gets single reservation that matches the filter
