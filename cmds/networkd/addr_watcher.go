@@ -13,8 +13,8 @@ import (
 	"github.com/threefoldtech/test/pkg/network/ifaceutil"
 	"github.com/threefoldtech/test/pkg/network/types"
 	"github.com/threefoldtech/test/pkg/schema"
-	"github.com/threefoldtech/test/tools/explorer/models/generated/directory"
 	"github.com/threefoldtech/test/tools/client"
+	"github.com/threefoldtech/test/tools/explorer/models/generated/directory"
 	"github.com/vishvananda/netlink"
 )
 
@@ -69,6 +69,8 @@ func (w WatchedLinks) Forever(ctx context.Context) error {
 		return err
 	}
 
+	nextAllowed := time.Now()
+
 	for {
 		select {
 
@@ -81,9 +83,14 @@ func (w WatchedLinks) Forever(ctx context.Context) error {
 				return fmt.Errorf("netlink closed the subscription channel")
 			}
 
-			log.Debug().Msgf("addr update received %+v", update)
-			if err := w.callBack(update); err != nil {
-				log.Error().Err(err).Msg("addr watcher: error during callback")
+			now := time.Now()
+			if now.After(nextAllowed) {
+				log.Debug().Msgf("addr update received %+v", update)
+
+				if err := w.callBack(update); err != nil {
+					log.Error().Err(err).Msg("addr watcher: error during callback")
+				}
+				nextAllowed = now.Add(time.Minute * 10)
 			}
 		}
 	}

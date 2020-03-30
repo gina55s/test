@@ -2,12 +2,15 @@ package main
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"syscall"
 	"time"
+
+	"github.com/jbenet/go-base58"
 
 	"github.com/pkg/errors"
 	"github.com/threefoldtech/test/pkg/app"
@@ -16,8 +19,8 @@ import (
 	"github.com/threefoldtech/test/pkg/network"
 	"github.com/threefoldtech/test/pkg/stubs"
 	"github.com/threefoldtech/test/pkg/upgrade"
-	"github.com/threefoldtech/test/tools/explorer/models/generated/directory"
 	"github.com/threefoldtech/test/tools/client"
+	"github.com/threefoldtech/test/tools/explorer/models/generated/directory"
 
 	"github.com/cenkalti/backoff/v3"
 	"github.com/threefoldtech/test/pkg"
@@ -453,6 +456,8 @@ func registerNode(nodeID pkg.Identifier, farmID pkg.FarmID, version string, stor
 
 	v1ID, _ := network.NodeIDv1()
 
+	publicKeyHex := hex.EncodeToString(base58.Decode(nodeID.Identity()))
+
 	err := store.NodeRegister(directory.Node{
 		NodeId:    nodeID.Identity(),
 		NodeIdV1:  v1ID,
@@ -465,6 +470,7 @@ func registerNode(nodeID pkg.Identifier, farmID pkg.FarmID, version string, stor
 			Longitude: loc.Longitute,
 			Latitude:  loc.Latitude,
 		},
+		PublicKeyHex: publicKeyHex,
 	})
 
 	if err != nil {

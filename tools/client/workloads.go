@@ -8,20 +8,21 @@ import (
 
 	"github.com/threefoldtech/test/pkg/schema"
 	"github.com/threefoldtech/test/tools/explorer/models/generated/workloads"
+	wrklds "github.com/threefoldtech/test/tools/explorer/pkg/workloads"
 )
 
 type httpWorkloads struct {
 	*httpClient
 }
 
-func (w *httpWorkloads) Create(reservation workloads.Reservation) (id schema.ID, err error) {
-	err = w.post(w.url("reservations"), reservation, &id, http.StatusCreated)
+func (w *httpWorkloads) Create(reservation workloads.Reservation) (resp wrklds.ReservationCreateResponse, err error) {
+	err = w.post(w.url("reservations"), reservation, &resp, http.StatusCreated)
 	return
 }
 
-func (w *httpWorkloads) List(nextAction workloads.NextActionEnum, customerTid int64, page *Pager) (reservation []workloads.Reservation, err error) {
+func (w *httpWorkloads) List(nextAction *workloads.NextActionEnum, customerTid int64, page *Pager) (reservation []workloads.Reservation, err error) {
 	query := url.Values{}
-	if nextAction != 0 {
+	if nextAction != nil {
 		query.Set("next_action", fmt.Sprint(nextAction))
 	}
 	if customerTid != 0 {
