@@ -68,9 +68,15 @@ func TestEngine(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	amount := engine.resourceAmount()
-	assert.Equal(t, int64(2), amount.Cru)
-	assert.Equal(t, int64(4), amount.Mru)
-	assert.Equal(t, int64(15), amount.Sru)
-	assert.Equal(t, int64(1), amount.Hru)
+	resources, workloads := engine.capacityUsed()
+	assert.Equal(t, uint64(2), resources.Cru)
+	assert.Equal(t, float64(4), resources.Mru)
+	assert.Equal(t, float64(15.25), resources.Sru)
+	assert.Equal(t, float64(1), resources.Hru)
+
+	assert.EqualValues(t, 1, workloads.Container)
+	assert.EqualValues(t, 0, workloads.Network)
+	assert.EqualValues(t, 1, workloads.Volume)
+	assert.EqualValues(t, 1, workloads.ZDBNamespace)
+	assert.EqualValues(t, 0, workloads.K8sVM)
 }

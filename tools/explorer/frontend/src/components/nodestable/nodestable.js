@@ -8,12 +8,11 @@ momentDurationFormatSetup(moment)
 
 export default {
   name: 'nodestable',
-  props: ['farmselected', 'registerednodes'],
+  props: ['farmselected', 'searchnodes', 'registerednodes'],
 
   components: { nodeInfo },
   data () {
     return {
-      searchnodes: undefined,
       showOffline: false,
       storeName: '',
       showDialog: false,
@@ -33,7 +32,7 @@ export default {
         { text: 'ID', value: 'id' },
         { text: 'Uptime', value: 'uptime' },
         { text: 'Version', value: 'version' },
-        { text: 'Farmer', value: 'farm_name' },
+        { text: 'Farmer', value: 'farmer' },
         { text: 'Status', value: 'status', align: 'center' }
       ]
     }
@@ -48,12 +47,20 @@ export default {
           return farmer.id === node.farm_id
         })
 
+        // initialize farmer name with farmer_id from node in case farmer is not found
+        let farmer = {
+          id: node.farm_id,
+          name: ''
+        }
+        if (farm) {
+          farmer.name = farm.name
+        }
+
         return {
           uptime: moment.duration(node.uptime, 'seconds').format(),
           version: node.os_version,
           id: node.node_id,
-          farm_name: farm ? farm.name : node.farm_id,
-          farm_id: node.farm_id,
+          farmer: farmer,
           name: 'node ' + node.node_id,
           totalResources: node.total_resources,
           reservedResources: node.reserved_resources,
