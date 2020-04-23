@@ -9,12 +9,12 @@ import (
 	"time"
 
 	"github.com/cenkalti/backoff/v3"
+	"github.com/threefoldtech/tfexplorer/client"
+	"github.com/threefoldtech/tfexplorer/models/generated/directory"
 	"github.com/threefoldtech/test/pkg"
 	"github.com/threefoldtech/test/pkg/network/ifaceutil"
 	"github.com/threefoldtech/test/pkg/network/types"
-	"github.com/threefoldtech/test/pkg/schema"
-	"github.com/threefoldtech/test/tools/client"
-	"github.com/threefoldtech/test/tools/explorer/models/generated/directory"
+	"github.com/threefoldtech/tfexplorer/schema"
 	"github.com/vishvananda/netlink"
 )
 

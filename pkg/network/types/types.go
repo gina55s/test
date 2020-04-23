@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/threefoldtech/test/tools/explorer/models/generated/directory"
+	"github.com/threefoldtech/tfexplorer/models/generated/directory"
 
-	"github.com/threefoldtech/test/pkg/schema"
+	"github.com/threefoldtech/tfexplorer/schema"
 )
 
 // IfaceType define the different public interface supported

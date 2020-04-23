@@ -7,13 +7,13 @@ import (
 
 	"github.com/cenkalti/backoff/v3"
 
+	"github.com/threefoldtech/tfexplorer/client"
+	"github.com/threefoldtech/tfexplorer/models/generated/directory"
 	"github.com/threefoldtech/test/pkg/app"
 	"github.com/threefoldtech/test/pkg/capacity"
 	"github.com/threefoldtech/test/pkg/monitord"
 	"github.com/threefoldtech/test/pkg/stubs"
 	"github.com/threefoldtech/test/pkg/utils"
-	"github.com/threefoldtech/test/tools/client"
-	"github.com/threefoldtech/test/tools/explorer/models/generated/directory"
 
 	"github.com/rs/zerolog/log"
 

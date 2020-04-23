@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/threefoldtech/test/pkg/schema"
-	"github.com/threefoldtech/test/tools/explorer/models/generated/directory"
+	"github.com/threefoldtech/tfexplorer/models/generated/directory"
+	"github.com/threefoldtech/tfexplorer/schema"
 )
 
 func TestParseIPNet(t *testing.T) {

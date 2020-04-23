@@ -6,11 +6,11 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
+	"github.com/threefoldtech/tfexplorer/client"
 	"github.com/threefoldtech/test/pkg"
 	"github.com/threefoldtech/test/pkg/network"
 	"github.com/threefoldtech/test/pkg/network/namespace"
 	"github.com/threefoldtech/test/pkg/network/types"
-	"github.com/threefoldtech/test/tools/client"
 )
 
 // ErrNoPubIface is the error returns by ReadPubIface when no public
