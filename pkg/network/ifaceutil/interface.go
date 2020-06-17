@@ -260,36 +260,64 @@ func HostIPV6Iface() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	test, err := netlink.LinkByName("test")
+	if err != nil {
+		return "", err
+	}
 
-	for _, link := range LinkFilter(links, []string{"device"}) {
+	// first check all physical interface
+	links = LinkFilter(links, []string{"device"})
+	// then check test bridge
+	links = append(links, test)
+
+	for _, link := range links {
+
 		addrs, err := netlink.AddrList(link, netlink.FAMILY_V6)
 		if err != nil {
 			return "", err
 		}
 
 		for _, addr := range addrs {
+			log.Info().
+				Str("iface", link.Attrs().Name).
+				Str("addr", addr.String()).
+				Msg("search public ipv6 address")
+
 			if addr.IP.IsGlobalUnicast() {
 				return link.Attrs().Name, nil
 			}
 		}
 	}
 
-	// not found on host interfaces, check on test bridge
-	link, err := netlink.LinkByName("test")
-	if err != nil {
-		return "", err
-	}
+	return "", nil
+}
 
-	addrs, err := netlink.AddrList(link, netlink.FAMILY_V6)
-	if err != nil {
-		return "", err
-	}
+// ParentIface return the parent interface fof iface
+// if netNS is not nil, switch to the network namespace before checking iface
+func ParentIface(iface string, netNS ns.NetNS) (netlink.Link, error) {
+	var (
+		parentIndex int
+		err         error
+	)
 
-	for _, addr := range addrs {
-		if addr.IP.IsGlobalUnicast() {
-			return link.Attrs().Name, nil
+	f := func(_ ns.NetNS) error {
+		master, err := netlink.LinkByName(iface)
+		if err != nil {
+			return err
 		}
+
+		parentIndex = master.Attrs().ParentIndex
+		return nil
 	}
 
-	return "", fmt.Errorf("no interface found with ipv6")
+	if netNS != nil {
+		err = netNS.Do(f)
+	} else {
+		err = f(nil)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return netlink.LinkByIndex(parentIndex)
 }
