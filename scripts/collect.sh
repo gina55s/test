@@ -13,4 +13,7 @@ fi
 
 mkdir -p ${archive}/bin ${archive}/etc
 cp bin/* ${archive}/bin/
+for sub in $(bin/test --list); do
+    ln -s test ${archive}/bin/${sub}
+done
 cp -r etc/* ${archive}/etc/
