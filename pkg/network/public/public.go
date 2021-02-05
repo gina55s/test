@@ -30,7 +30,17 @@ const (
 func ensurePublicBridge() (*netlink.Bridge, error) {
 	br, err := bridge.Get(PublicBridge)
 	if err != nil {
-		return bridge.New(PublicBridge)
+		br, err = bridge.New(PublicBridge)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if err := options.Set(
+		br.Attrs().Name,
+		options.IPv6Disable(true),
+		options.AcceptRA(options.RAOff)); err != nil {
+		return nil, err
 	}
 
 	return br, nil
@@ -145,9 +155,10 @@ func findPossibleExit() (string, error) {
 	log.Debug().Msg("find possible ipv6 exit interface")
 
 	links, err := bootstrap.AnalyseLinks(
+		bootstrap.RequiresIPv6,
 		bootstrap.PhysicalFilter,
-		bootstrap.PluggedFilter,
 		bootstrap.NotAttachedFilter,
+		bootstrap.PluggedFilter,
 	)
 
 	log.Debug().Int("found", len(links)).Msg("found possible links")
@@ -157,7 +168,7 @@ func findPossibleExit() (string, error) {
 
 	for _, link := range links {
 		for _, addr := range link.Addrs6 {
-			log.Debug().Str("link", link.Name).Str("ip", addr.String()).Msg("checking address")
+			log.Debug().Str("link", link.Name).IPAddr("ip", addr.IP).Msg("checking address")
 			if addr.IP.IsGlobalUnicast() && !ifaceutil.IsULA(addr.IP) {
 				return link.Name, nil
 			}
