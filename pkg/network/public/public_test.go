@@ -6,15 +6,15 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/threefoldtech/test/pkg"
+	"github.com/threefoldtech/test/pkg/gridtypes"
 	"github.com/threefoldtech/test/pkg/network/namespace"
 	"github.com/threefoldtech/test/pkg/network/types"
 )
 
 func TestCreatePublicNS(t *testing.T) {
-	iface := &types.PubIface{
-		Master: "test0",
-		Type:   types.MacVlanIface,
-		IPv6: types.IPNet{net.IPNet{
+	iface := &pkg.PublicConfig{
+		Type: pkg.MacVlanIface,
+		IPv6: gridtypes.IPNet{IPNet: net.IPNet{
 			IP:   net.ParseIP("2a02:1802:5e:ff02::100"),
 			Mask: net.CIDRMask(64, 128),
 		}},
@@ -27,6 +27,6 @@ func TestCreatePublicNS(t *testing.T) {
 		require.NoError(t, err)
 	}()
 
-	err := createPublicNS(pkg.StrIdentifier(""), iface)
+	err := setupPublicNS(pkg.StrIdentifier(""), iface)
 	require.NoError(t, err)
 }

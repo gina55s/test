@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/threefoldtech/test/pkg"
+
+	"github.com/threefoldtech/test/pkg/gridtypes/test"
 	"github.com/threefoldtech/test/pkg/storage"
 )
 
@@ -12,7 +13,7 @@ func main() {
 		panic(fmt.Sprintf("%v", err))
 	}
 
-	kind := pkg.SSDDevice
+	kind := test.SSDDevice
 	total, err := s.Total(kind)
 	if err != nil {
 		panic(fmt.Sprintf("%v", err))
@@ -20,7 +21,7 @@ func main() {
 
 	fmt.Printf("SSD: %v\n", total)
 
-	kind = pkg.HDDDevice
+	kind = test.HDDDevice
 	total, err = s.Total(kind)
 	if err != nil {
 		panic(fmt.Sprintf("%v", err))

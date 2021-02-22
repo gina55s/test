@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/threefoldtech/test/pkg"
+	"github.com/threefoldtech/test/pkg/gridtypes/test"
 
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -53,7 +54,7 @@ func TestBtrfsCreateSingle(t *testing.T) {
 	require := require.New(t)
 	mgr := &TestDeviceManager{
 		devices: DeviceCache{
-			Device{Path: "/tmp/dev1", DiskType: pkg.SSDDevice},
+			Device{Path: "/tmp/dev1", DiskType: test.SSDDevice},
 		},
 	}
 
@@ -76,8 +77,8 @@ func TestBtrfsCreateRaid1(t *testing.T) {
 	require := require.New(t)
 	mgr := &TestDeviceManager{
 		devices: DeviceCache{
-			Device{Path: "/tmp/dev1", DiskType: pkg.SSDDevice},
-			Device{Path: "/tmp/dev2", DiskType: pkg.SSDDevice},
+			Device{Path: "/tmp/dev1", DiskType: test.SSDDevice},
+			Device{Path: "/tmp/dev2", DiskType: test.SSDDevice},
 		},
 	}
 

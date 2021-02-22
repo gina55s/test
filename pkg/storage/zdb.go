@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/threefoldtech/test/pkg"
+	"github.com/threefoldtech/test/pkg/gridtypes/test"
 	"github.com/threefoldtech/test/pkg/storage/filesystem"
 	"github.com/threefoldtech/test/pkg/storage/zdbpool"
 )
@@ -62,7 +63,7 @@ func (s *Module) Allocate(nsID string, diskType pkg.DeviceType, size uint64, mod
 		Str("mode", string(mode)).
 		Logger()
 
-	if diskType != pkg.HDDDevice && diskType != pkg.SSDDevice {
+	if diskType != test.HDDDevice && diskType != test.SSDDevice {
 		return allocation, pkg.ErrInvalidDeviceType{DeviceType: diskType}
 	}
 
@@ -109,7 +110,7 @@ func (s *Module) Allocate(nsID string, diskType pkg.DeviceType, size uint64, mod
 	}
 
 	targetMode := zdbpool.IndexModeKeyValue
-	if mode == pkg.ZDBModeSeq {
+	if mode == test.ZDBModeSeq {
 		targetMode = zdbpool.IndexModeSequential
 	}
 

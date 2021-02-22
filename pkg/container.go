@@ -5,7 +5,7 @@ package pkg
 
 import (
 	"github.com/threefoldtech/test/pkg/container/logger"
-	"github.com/threefoldtech/test/pkg/container/stats"
+	"github.com/threefoldtech/test/pkg/gridtypes/test"
 )
 
 // ContainerID type
@@ -54,7 +54,7 @@ type Container struct {
 	// Logs backends
 	Logs []logger.Logs
 	// Stats container metrics backend
-	Stats []stats.Stats
+	Stats []test.Stats
 }
 
 // ContainerModule defines rpc interface to containerd
