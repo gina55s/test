@@ -3,8 +3,8 @@ use super::hub;
 use super::workdir::WorkDir;
 use super::zfs::Zfs;
 use super::zinit;
-
 use anyhow::{Context, Result};
+use config::{RunMode, Version};
 use retry;
 
 const FLIST_REPO: &str = "tf-test";
@@ -14,10 +14,19 @@ const FLIST_NAME_FILE: &str = "/tmp/flist.name";
 const WORKDIR: &str = "/tmp/bootstrap";
 
 fn boostrap_test(cfg: &config::Config) -> Result<()> {
-    let flist = match cfg.runmode {
-        config::RunMode::Prod => "test:production:latest.flist",
-        config::RunMode::Dev => "test:development:latest.flist",
-        config::RunMode::Test => "test:testing:latest.flist",
+    let flist = match &cfg.runmode {
+        RunMode::Prod => match &cfg.version {
+            Version::V2 => "test:production:latest.flist",
+            Version::V3 => "test:production-3:latest.flist",
+        },
+        RunMode::Dev => match &cfg.version {
+            Version::V2 => "test:development:latest.flist",
+            Version::V3 => "test:development-3:latest.flist",
+        },
+        RunMode::Test => match &cfg.version {
+            Version::V2 => "test:testing:latest.flist",
+            Version::V3 => "test:testing-3:latest.flist",
+        },
     };
 
     debug!("using flist: {}/{}", FLIST_REPO, flist);
