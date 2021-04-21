@@ -41,7 +41,13 @@ func NewPrimitivesProvisioner(zbus zbus.Client) *Primitives {
 		test.PublicIPType:   p.publicIPDecomission,
 	}
 
-	p.Provisioner = provision.NewMapProvisioner(provisioners, decommissioners)
+	// only network support update atm
+	updaters := map[gridtypes.WorkloadType]provision.DeployFunction{
+		test.NetworkType: p.networkProvision,
+		test.VolumeType:  p.volumeProvision,
+	}
+
+	p.Provisioner = provision.NewMapProvisioner(provisioners, decommissioners, updaters)
 
 	return p
 }
