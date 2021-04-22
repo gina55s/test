@@ -18,9 +18,9 @@ func (i NetID) String() string {
 }
 
 // NetworkID construct a network ID based on a userID and network name
-func NetworkID(twin uint32, network string) NetID {
+func NetworkID(user, network string) NetID {
 	buf := bytes.Buffer{}
-	buf.WriteString(fmt.Sprint(twin))
+	buf.WriteString(user)
 	buf.WriteString(":")
 	buf.WriteString(network)
 	h := md5.Sum(buf.Bytes())
@@ -33,13 +33,14 @@ func NetworkID(twin uint32, network string) NetID {
 
 // Network is the description of a part of a network local to a specific node
 type Network struct {
+	Name string `json:"name"`
 	// IP range of the network, must be an IPv4 /16
 	NetworkIPRange gridtypes.IPNet `json:"ip_range"`
 
 	// IPV4 subnet for this network resource
 	Subnet gridtypes.IPNet `json:"subnet"`
 
-	WGPrivateKey string `json:"wireguard_private_key"`
+	WGPrivateKeyEncrypted string `json:"wireguard_private_key_encrypted"`
 	// WGPublicKey           string `json:"wireguard_public_key"`
 	WGListenPort uint16 `json:"wireguard_listen_port"`
 
@@ -47,7 +48,11 @@ type Network struct {
 }
 
 // Valid checks if the network resource is valid.
-func (n Network) Valid(getter gridtypes.WorkloadGetter) error {
+func (n Network) Valid() error {
+
+	if n.Name == "" {
+		return fmt.Errorf("network name cannot be empty")
+	}
 
 	if n.NetworkIPRange.Nil() {
 		return fmt.Errorf("network IP range cannot be empty")
@@ -57,7 +62,7 @@ func (n Network) Valid(getter gridtypes.WorkloadGetter) error {
 		return fmt.Errorf("network resource subnet cannot empty")
 	}
 
-	if n.WGPrivateKey == "" {
+	if n.WGPrivateKeyEncrypted == "" {
 		return fmt.Errorf("network resource wireguard private key cannot empty")
 	}
 
@@ -72,6 +77,9 @@ func (n Network) Valid(getter gridtypes.WorkloadGetter) error {
 
 // Challenge implements WorkloadData
 func (n Network) Challenge(b io.Writer) error {
+	if _, err := fmt.Fprintf(b, "%s", n.Name); err != nil {
+		return err
+	}
 	if _, err := fmt.Fprintf(b, "%s", n.NetworkIPRange.String()); err != nil {
 		return err
 	}
@@ -80,7 +88,7 @@ func (n Network) Challenge(b io.Writer) error {
 		return err
 	}
 
-	if _, err := fmt.Fprintf(b, "%s", n.WGPrivateKey); err != nil {
+	if _, err := fmt.Fprintf(b, "%s", n.WGPrivateKeyEncrypted); err != nil {
 		return err
 	}
 
