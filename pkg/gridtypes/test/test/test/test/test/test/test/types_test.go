@@ -30,21 +30,23 @@ func TestWorkloadValidation(t *testing.T) {
 	require := require.New(t)
 
 	wl := gridtypes.Workload{
+		ID:   gridtypes.ID("my-id"),
+		User: gridtypes.ID("my-user"),
 		Type: VolumeType,
-		Name: "name",
 		Data: json.RawMessage(`{"size": 10, "type": "ssd"}`),
 	}
 
-	err := wl.Valid(nil)
+	err := wl.Valid()
 	require.NoError(err)
 
 	wl = gridtypes.Workload{
+		ID:   gridtypes.ID("my-id"),
+		User: gridtypes.ID("my-user"),
 		Type: VolumeType,
-		Name: "name",
 		Data: json.RawMessage(`{"size": 10, "type": "abc"}`),
 	}
 
-	err = wl.Valid(nil)
+	err = wl.Valid()
 	require.EqualError(err, "invalid device type")
 
 }
