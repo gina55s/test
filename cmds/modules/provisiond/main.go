@@ -16,6 +16,7 @@ import (
 	"github.com/threefoldtech/test/pkg/app"
 	"github.com/threefoldtech/test/pkg/capacity"
 	"github.com/threefoldtech/test/pkg/environment"
+	"github.com/threefoldtech/test/pkg/gridtypes"
 	"github.com/threefoldtech/test/pkg/gridtypes/test"
 	"github.com/threefoldtech/test/pkg/primitives"
 	"github.com/threefoldtech/test/pkg/provision/api"
@@ -151,10 +152,26 @@ func action(cli *cli.Context) error {
 		return errors.Wrap(err, "failed to get node capacity")
 	}
 
+	var current gridtypes.Capacity
+	if !app.IsFirstBoot(module) {
+		// if this is the first boot of this module.
+		// it means the provision engine will still
+		// rerun all deployments, which means we don't need
+		// to set the current consumed capacity from store
+		// since the counters will get populated anyway.
+		// but if not, we need to set the current counters
+		// from store.
+		current, err = store.Capacity()
+		if err != nil {
+			log.Error().Err(err).Msg("failed to compute current consumed capacity")
+		}
+	}
+
 	// statistics collects information about workload statistics
 	// also does some checks on capacity
 	statistics := primitives.NewStatistics(
 		cap,
+		current,
 		reserved,
 		nodeID.Identity(),
 		provisioners,
@@ -198,6 +215,8 @@ func action(cli *cli.Context) error {
 			test.NetworkType,
 			test.PublicIPType,
 		),
+		// if this is a node reboot, the node needs to
+		// recreate all reservations. so we set rerun = true
 		provision.WithRerunAll(app.IsFirstBoot(module)),
 	)
 
