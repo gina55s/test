@@ -7,13 +7,12 @@ import (
 	"net"
 	"sort"
 
-	"github.com/pkg/errors"
 	"github.com/threefoldtech/test/pkg/gridtypes"
 )
 
 // Member struct
 type Member struct {
-	Network string `json:"network"`
+	NetworkID string `json:"network_id"`
 	// IP to give to the container
 	IPs         []net.IP `json:"ips"`
 	PublicIP6   bool     `json:"public_ip6"`
@@ -22,7 +21,7 @@ type Member struct {
 
 // Challenge creates signature challenge
 func (m Member) Challenge(w io.Writer) error {
-	if _, err := fmt.Fprintf(w, "%s", m.Network); err != nil {
+	if _, err := fmt.Fprintf(w, "%s", m.NetworkID); err != nil {
 		return err
 	}
 
@@ -44,13 +43,13 @@ func (m Member) Challenge(w io.Writer) error {
 
 // Mount defines a container volume mounted inside the container
 type Mount struct {
-	Volume     string `json:"volume"`
+	VolumeID   string `json:"volume_id"`
 	Mountpoint string `json:"mountpoint"`
 }
 
 // Challenge creates signature challenge
 func (m Mount) Challenge(w io.Writer) error {
-	if _, err := fmt.Fprintf(w, "%s", m.Volume); err != nil {
+	if _, err := fmt.Fprintf(w, "%s", m.VolumeID); err != nil {
 		return err
 	}
 	if _, err := fmt.Fprintf(w, "%s", m.Mountpoint); err != nil {
@@ -72,6 +71,12 @@ type LogsData struct {
 
 	// Stderr is the redis url for stderr (redis://host/channel)
 	Stderr string `json:"stderr"`
+
+	// SecretStdout like stdout but encrypted with node public key
+	SecretStdout string `json:"secret_stdout"`
+
+	// SecretStderr like stderr but encrypted with node public key
+	SecretStderr string `json:"secret_stderr"`
 }
 
 // Stats defines a stats backend
@@ -135,6 +140,10 @@ type Container struct {
 	HubURL string `json:"hub_url"`
 	// Env env variables to container in format
 	Env map[string]string `json:"env"`
+	// Env env variables to container that the value is encrypted
+	// with the node public key. the env will be exposed to plain
+	// text to the entrypoint.
+	SecretEnv map[string]string `json:"secret_env"`
 	// Entrypoint the process to start inside the container
 	Entrypoint string `json:"entrypoint"`
 	// Interactivity enable Core X as PID 1 on the container
@@ -152,20 +161,7 @@ type Container struct {
 }
 
 // Valid implement the validation interface for container data
-func (c Container) Valid(getter gridtypes.WorkloadGetter) error {
-	for _, mnt := range c.Mounts {
-		wl, err := getter.Get(mnt.Volume)
-		if err != nil {
-			return errors.Wrap(err, "mount volume is not found")
-		}
-		if wl.Type != VolumeType {
-			return errors.Wrapf(err, "workload of name '%s' is not a volume", mnt.Volume)
-		}
-	}
-
-	//TODO: also validate the network
-	//NOTE: we leave this out at the moment because network
-	// still can be global per user.
+func (c Container) Valid() error {
 	return nil
 }
 
@@ -203,7 +199,9 @@ func (c Container) Challenge(w io.Writer) error {
 	if err := encodeEnv(w, c.Env); err != nil {
 		return err
 	}
-
+	if err := encodeEnv(w, c.SecretEnv); err != nil {
+		return err
+	}
 	for _, v := range c.Mounts {
 		if err := v.Challenge(w); err != nil {
 			return err
