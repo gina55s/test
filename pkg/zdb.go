@@ -1,6 +1,9 @@
 package pkg
 
-import "github.com/threefoldtech/test/pkg/gridtypes/test"
+import (
+	"github.com/threefoldtech/test/pkg/gridtypes"
+	"github.com/threefoldtech/test/pkg/gridtypes/test"
+)
 
 //go:generate mkdir -p stubs
 //go:generate zbusc -module storage -version 0.0.1 -name storage -package stubs github.com/threefoldtech/test/pkg+ZDBAllocater stubs/zdb_stub.go
@@ -33,7 +36,7 @@ type ZDBAllocater interface {
 	// it returns the volume ID and its path or an error if it couldn't allocate enough storage
 	// Note: if allocation already exists with the namespace name, the current allocation is returned
 	// so no need to call Find before calling allocate
-	Allocate(namespace string, diskType DeviceType, size uint64, mode ZDBMode) (Allocation, error)
+	Allocate(namespace string, diskType DeviceType, size gridtypes.Unit, mode ZDBMode) (Allocation, error)
 
 	// Find searches the system for the current allocation for the namespace
 	// Return error = "not found" if no allocation exists.

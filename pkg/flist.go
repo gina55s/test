@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"github.com/threefoldtech/test/pkg/gridtypes"
 	"github.com/threefoldtech/test/pkg/gridtypes/test"
 )
 
@@ -12,7 +13,7 @@ var (
 	//DefaultMountOptions has sane values for mount
 	DefaultMountOptions = MountOptions{
 		ReadOnly: false,
-		Limit:    256, //Mib
+		Limit:    256 * gridtypes.Megabyte, //Mib
 		Type:     test.SSDDevice,
 	}
 
@@ -26,8 +27,8 @@ var (
 type MountOptions struct {
 	// ReadOnly
 	ReadOnly bool
-	// Limit size of read-write layer in Mib
-	Limit uint64
+	// Limit size of read-write layer
+	Limit gridtypes.Unit
 	// Type of disk to use
 	Type test.DeviceType
 }

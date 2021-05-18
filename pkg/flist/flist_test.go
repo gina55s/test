@@ -16,6 +16,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"github.com/threefoldtech/test/pkg"
+	"github.com/threefoldtech/test/pkg/gridtypes"
 	"github.com/threefoldtech/test/pkg/gridtypes/test"
 )
 
@@ -32,7 +33,7 @@ type StorageMock struct {
 }
 
 // CreateFilesystem create filesystem mock
-func (s *StorageMock) CreateFilesystem(ctx context.Context, name string, size uint64, poolType pkg.DeviceType) (pkg.Filesystem, error) {
+func (s *StorageMock) CreateFilesystem(ctx context.Context, name string, size gridtypes.Unit, poolType pkg.DeviceType) (pkg.Filesystem, error) {
 	args := s.Called(ctx, name, size, poolType)
 	return pkg.Filesystem{
 		Path: args.String(0),

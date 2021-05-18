@@ -5,6 +5,7 @@ package pkg
 
 import (
 	"github.com/threefoldtech/test/pkg/container/logger"
+	"github.com/threefoldtech/test/pkg/gridtypes"
 	"github.com/threefoldtech/test/pkg/gridtypes/test"
 )
 
@@ -49,8 +50,8 @@ type Container struct {
 	Interactive bool
 	// CPU count limit
 	CPU uint
-	// Memory limit in bytes
-	Memory uint64
+	// Memory limit in
+	Memory gridtypes.Unit
 	// Logs backends
 	Logs []logger.Logs
 	// Stats container metrics backend
