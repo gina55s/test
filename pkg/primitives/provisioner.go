@@ -25,26 +25,27 @@ func NewPrimitivesProvisioner(zbus zbus.Client) *Primitives {
 	}
 
 	provisioners := map[gridtypes.WorkloadType]provision.DeployFunction{
-		test.ContainerType:  p.containerProvision,
-		test.VolumeType:     p.volumeProvision,
-		test.NetworkType:    p.networkProvision,
-		test.ZDBType:        p.zdbProvision,
-		test.KubernetesType: p.kubernetesProvision,
-		test.PublicIPType:   p.publicIPProvision,
+		// test.ContainerType:      p.containerProvision,
+		test.ZMountType:  p.zMountProvision,
+		test.NetworkType: p.networkProvision,
+		test.ZDBType:     p.zdbProvision,
+		// test.KubernetesType:     p.kubernetesProvision,
+		test.ZMachineType: p.virtualMachineProvision,
+		test.PublicIPType: p.publicIPProvision,
 	}
 	decommissioners := map[gridtypes.WorkloadType]provision.RemoveFunction{
-		test.ContainerType:  p.containerDecommission,
-		test.VolumeType:     p.volumeDecommission,
-		test.NetworkType:    p.networkDecommission,
-		test.ZDBType:        p.zdbDecommission,
-		test.KubernetesType: p.kubernetesDecomission,
-		test.PublicIPType:   p.publicIPDecomission,
+		// test.ContainerType:      p.containerDecommission,
+		test.ZMountType:  p.zMountDecommission,
+		test.NetworkType: p.networkDecommission,
+		test.ZDBType:     p.zdbDecommission,
+		// test.KubernetesType:     p.kubernetesDecomission,
+		test.ZMachineType: p.vmDecomission,
+		test.PublicIPType: p.publicIPDecomission,
 	}
 
 	// only network support update atm
 	updaters := map[gridtypes.WorkloadType]provision.DeployFunction{
 		test.NetworkType: p.networkProvision,
-		test.VolumeType:  p.volumeProvision,
 	}
 
 	p.Provisioner = provision.NewMapProvisioner(provisioners, decommissioners, updaters)
