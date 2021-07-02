@@ -8,7 +8,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/threefoldtech/zbus"
 	"github.com/threefoldtech/test/pkg"
-	"github.com/threefoldtech/test/pkg/environment"
 	"github.com/threefoldtech/test/pkg/gridtypes"
 	"github.com/threefoldtech/test/pkg/gridtypes/test"
 	"github.com/threefoldtech/test/pkg/provision"
@@ -60,8 +59,8 @@ func (n *Network) getPublicConfigHandler(ctx context.Context, payload []byte) (i
 
 func (n *Network) setPublicConfigHandler(ctx context.Context, payload []byte) (interface{}, error) {
 	twinID := rmb.GetTwinID(ctx)
-	env := environment.MustGet()
-	if uint32(env.FarmerID) == twinID {
+
+	if _, err := n.engine.Admins().GetKey(twinID); err != nil {
 		return nil, fmt.Errorf("not authorized")
 	}
 
