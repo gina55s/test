@@ -3,6 +3,7 @@ package test
 import (
 	"fmt"
 	"io"
+	"math"
 	"net"
 	"sort"
 
@@ -83,12 +84,12 @@ type Stats struct {
 type ContainerCapacity struct {
 	// Number of CPU
 	CPU uint `json:"cpu"`
-	// Memory
-	Memory gridtypes.Unit `json:"memory"`
+	// Memory in MiB
+	Memory uint64 `json:"memory"`
 	//DiskType is the type of disk to use for root fs
 	DiskType DeviceType `json:"disk_type"`
-	// DiskSize of the root fs
-	DiskSize gridtypes.Unit `json:"disk_size"`
+	// DiskSize of the root fs in MiB
+	DiskSize uint64 `json:"disk_size"`
 }
 
 // Challenge creates signature challenge
@@ -111,14 +112,16 @@ func (c ContainerCapacity) Challenge(w io.Writer) error {
 func (c ContainerCapacity) capacity() (gridtypes.Capacity, error) {
 	rsu := gridtypes.Capacity{
 		CRU: uint64(c.CPU),
-		MRU: c.Memory,
+		// round mru to 4 digits precision
+		MRU: uint64(math.Round(float64(c.Memory)/1024*10000) / 10000),
 	}
-	storageSize := c.DiskSize
+	storageSize := math.Round(float64(c.DiskSize)/1024*10000) / 10000
+	storageSize = math.Max(0, storageSize-50) // we offer the 50 first GB of storage for container root
 	switch c.DiskType {
 	case HDDDevice:
-		rsu.HRU = storageSize
+		rsu.HRU = uint64(storageSize)
 	case SSDDevice:
-		rsu.SRU = storageSize
+		rsu.SRU = uint64(storageSize)
 	}
 
 	return rsu, nil

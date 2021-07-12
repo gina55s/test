@@ -18,11 +18,11 @@ func (i NetID) String() string {
 }
 
 // NetworkID construct a network ID based on a userID and network name
-func NetworkID(twin uint32, network gridtypes.Name) NetID {
+func NetworkID(twin uint32, network string) NetID {
 	buf := bytes.Buffer{}
 	buf.WriteString(fmt.Sprint(twin))
 	buf.WriteString(":")
-	buf.WriteString(string(network))
+	buf.WriteString(network)
 	h := md5.Sum(buf.Bytes())
 	b := base58.Encode(h[:])
 	if len(b) > 13 {
