@@ -89,14 +89,13 @@ func (n *Network) listPublicIps(request *http.Request) (interface{}, mw.Response
 					continue
 				}
 
-				data, err := workload.WorkloadData()
-				if err != nil {
+				var result test.PublicIPResult
+				if err := workload.Result.Unmarshal(&result); err != nil {
 					return nil, mw.Error(err)
 				}
 
-				ip, _ := data.(*test.PublicIP)
-				if ip.IP.IP != nil {
-					ips = append(ips, ip.IP.String())
+				if result.IP.IP != nil {
+					ips = append(ips, result.IP.String())
 				}
 			}
 		}
