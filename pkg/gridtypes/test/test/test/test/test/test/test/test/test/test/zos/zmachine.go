@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"regexp"
 	"sort"
 
 	"github.com/pkg/errors"
@@ -20,16 +21,11 @@ type MachineInterface struct {
 type MachineNetwork struct {
 	PublicIP   gridtypes.Name     `json:"public_ip"`
 	Interfaces []MachineInterface `json:"interfaces"`
-	Planetary  bool               `json:"planetary"`
 }
 
 // Challenge builder
 func (n *MachineNetwork) Challenge(w io.Writer) error {
 	if _, err := fmt.Fprintf(w, "%s", n.PublicIP); err != nil {
-		return err
-	}
-
-	if _, err := fmt.Fprintf(w, "%t", n.Planetary); err != nil {
 		return err
 	}
 
@@ -86,6 +82,7 @@ func (m *MachineMount) Challenge(w io.Writer) error {
 
 // ZMachine reservation data
 type ZMachine struct {
+	Name            string          `json:"name"`
 	FList           string          `json:"flist"`
 	Network         MachineNetwork  `json:"network"`
 	Size            uint8           `json:"size"` // deprecated, use compute_capacity instead
@@ -99,6 +96,10 @@ type ZMachine struct {
 
 // Valid implementation
 func (v ZMachine) Valid(getter gridtypes.WorkloadGetter) error {
+	if matched, _ := regexp.MatchString("^[0-9a-zA-Z-.]*$", v.Name); !matched {
+		return fmt.Errorf("the name must consist of alphanumeric characters, dot, and dash ony")
+	}
+
 	if len(v.Network.Interfaces) != 1 {
 		return fmt.Errorf("only one network private network is supported at the moment")
 	}
@@ -152,6 +153,10 @@ func (v ZMachine) Capacity() (gridtypes.Capacity, error) {
 
 // Challenge creates signature challenge
 func (v ZMachine) Challenge(b io.Writer) error {
+	if _, err := fmt.Fprintf(b, "%s", v.Name); err != nil {
+		return err
+	}
+
 	if _, err := fmt.Fprintf(b, "%s", v.FList); err != nil {
 		return err
 	}

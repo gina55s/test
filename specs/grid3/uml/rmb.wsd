@@ -1,0 +1,19 @@
+@startuml
+actor Client as cl
+participant RMB as rmb
+participant Node as test
+
+cl --> rmb: Create an RMB message \n(cmd: test.deployment.deploy, dat: base64(json(deployment)))
+rmb -> test: Decode payload(dat). \nSo node receive a deployment object
+test -> test: Verify hash against contract hash\nVerify signature of the twin
+test -> rmb: Accepted Or Error
+rmb --> cl: Response from the node
+group If valid
+test -> test: Deploy
+end group
+...
+cl --> rmb: Get Deployment (cmd: test.deployment.get)
+rmb -> test: Call get method
+test -> rmb: Get Response
+rmb --> cl: Response
+@enduml
