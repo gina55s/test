@@ -9,27 +9,24 @@ import (
 const (
 	// ContainerType type
 	ContainerType gridtypes.WorkloadType = "container"
-	// ZMountType type
-	ZMountType gridtypes.WorkloadType = "zmount"
+	// VolumeType type
+	VolumeType gridtypes.WorkloadType = "volume"
 	// NetworkType type
 	NetworkType gridtypes.WorkloadType = "network"
 	// ZDBType type
 	ZDBType gridtypes.WorkloadType = "zdb"
 	// KubernetesType type
 	KubernetesType gridtypes.WorkloadType = "kubernetes"
-	// ZMachineType type
-	ZMachineType gridtypes.WorkloadType = "virtualmachine"
-
 	//PublicIPType reservation
 	PublicIPType gridtypes.WorkloadType = "ipv4"
 )
 
 func init() {
-	gridtypes.RegisterType(ZMountType, ZMount{})
+	gridtypes.RegisterType(ContainerType, Container{})
+	gridtypes.RegisterType(VolumeType, Volume{})
 	gridtypes.RegisterType(NetworkType, Network{})
 	gridtypes.RegisterType(ZDBType, ZDB{})
 	gridtypes.RegisterType(KubernetesType, Kubernetes{})
-	gridtypes.RegisterType(ZMachineType, ZMachine{})
 	gridtypes.RegisterType(PublicIPType, PublicIP{})
 }
 

@@ -41,8 +41,8 @@ signature = hex(ed25591.sign(sk, challenge))
 ## Data
 For each workload type, the `Data` must be filled with proper parameters for this workload types.
 
-### Volume
-check volume data [here](test/volume.go)
+### Zmount
+check Zmount data [here](test/zmount.go)
 
 ### ZDB
 check zdb data [here](test/zdb.go)
@@ -53,8 +53,8 @@ check network data [here](test/network.go)
 ### IPV4
 check ipv4 data [here](test/ipv4.go)
 
-### Container
-check container data [here](test/container.go)
+### Zmachine
+check zmachine data [here](test/zmachine.go)
 
 ### Kubernetes
 check k8s data [here](test/kubernetes.go)
