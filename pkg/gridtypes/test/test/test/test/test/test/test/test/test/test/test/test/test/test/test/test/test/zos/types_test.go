@@ -12,29 +12,39 @@ func TestWorkloadData(t *testing.T) {
 	require := require.New(t)
 
 	wl := gridtypes.Workload{
-		Type: ZMountType,
-		Data: json.RawMessage(`{"size": 10}`),
+		Type: VolumeType,
+		Data: json.RawMessage(`{"size": 10, "type": "ssd"}`),
 	}
 
 	data, err := wl.WorkloadData()
 	require.NoError(err)
 
-	require.IsType(&ZMount{}, data)
-	volume := data.(*ZMount)
+	require.IsType(&Volume{}, data)
+	volume := data.(*Volume)
 
 	require.Equal(gridtypes.Unit(10), volume.Size)
+	require.Equal(SSDDevice, volume.Type)
 }
 
 func TestWorkloadValidation(t *testing.T) {
 	require := require.New(t)
 
 	wl := gridtypes.Workload{
-		Type: ZMountType,
+		Type: VolumeType,
 		Name: "name",
-		Data: json.RawMessage(`{"size": 10}`),
+		Data: json.RawMessage(`{"size": 10, "type": "ssd"}`),
 	}
 
 	err := wl.Valid(nil)
 	require.NoError(err)
+
+	wl = gridtypes.Workload{
+		Type: VolumeType,
+		Name: "name",
+		Data: json.RawMessage(`{"size": 10, "type": "abc"}`),
+	}
+
+	err = wl.Valid(nil)
+	require.EqualError(err, "invalid device type")
 
 }
