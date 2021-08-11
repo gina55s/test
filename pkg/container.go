@@ -4,6 +4,8 @@ package pkg
 //go:generate zbusc -module container -version 0.0.1 -name container -package stubs github.com/threefoldtech/test/pkg+ContainerModule stubs/container_stub.go
 
 import (
+	"time"
+
 	"github.com/threefoldtech/test/pkg/container/logger"
 	"github.com/threefoldtech/test/pkg/gridtypes"
 )
@@ -63,6 +65,8 @@ type Container struct {
 	Stats []Stats
 	// Elevated privileges (to use fuse inside)
 	Elevated bool
+	// CreatedAt time
+	CreatedAt time.Time
 }
 
 // ContainerModule defines rpc interface to containerd
