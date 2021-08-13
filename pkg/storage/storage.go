@@ -170,10 +170,6 @@ func (s *Module) initialize() error {
 			typ = test.SSDDevice
 		}
 
-		// TODO: this is a debugging code and should not be committed
-		if device.Path() == "/dev/vdd" || device.Path() == "/dev/vde" {
-			typ = test.HDDDevice
-		}
 		switch typ {
 		case test.SSDDevice:
 			s.totalSSD += usage.Size
