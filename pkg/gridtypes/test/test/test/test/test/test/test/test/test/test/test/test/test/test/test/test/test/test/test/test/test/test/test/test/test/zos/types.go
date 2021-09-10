@@ -18,7 +18,7 @@ const (
 	// KubernetesType type
 	KubernetesType gridtypes.WorkloadType = "kubernetes"
 	// ZMachineType type
-	ZMachineType gridtypes.WorkloadType = "zmachine"
+	ZMachineType gridtypes.WorkloadType = "virtualmachine"
 
 	//PublicIPType reservation
 	PublicIPType gridtypes.WorkloadType = "ipv4"
