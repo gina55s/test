@@ -9,7 +9,6 @@ import (
 	"github.com/threefoldtech/test/cmds/modules/capacityd"
 	"github.com/threefoldtech/test/cmds/modules/contd"
 	"github.com/threefoldtech/test/cmds/modules/flistd"
-	"github.com/threefoldtech/test/cmds/modules/gateway"
 	"github.com/threefoldtech/test/cmds/modules/networkd"
 	"github.com/threefoldtech/test/cmds/modules/provisiond"
 	"github.com/threefoldtech/test/cmds/modules/storaged"
@@ -44,7 +43,6 @@ func main() {
 			&networkd.Module,
 			&provisiond.Module,
 			&zbusdebug.Module,
-			&gateway.Module,
 		},
 		Action: func(c *cli.Context) error {
 			if !c.Bool("list") {
