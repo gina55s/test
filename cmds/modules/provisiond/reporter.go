@@ -13,13 +13,13 @@ import (
 	"github.com/joncrlsn/dque"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
+	"github.com/threefoldtech/substrate-client"
 	"github.com/threefoldtech/zbus"
 	"github.com/threefoldtech/test/pkg"
 	"github.com/threefoldtech/test/pkg/environment"
 	"github.com/threefoldtech/test/pkg/gridtypes"
 	"github.com/threefoldtech/test/pkg/provision"
 	"github.com/threefoldtech/test/pkg/stubs"
-	"github.com/threefoldtech/test/pkg/substrate"
 )
 
 const (
