@@ -91,7 +91,6 @@ func (q *QSFS) Mount(wlID string, cfg test.QuantumSafeFS) (info pkg.QSFSInfo, er
 	flistPath, err := flistd.Mount(ctx, wlID, qsfsFlist, pkg.MountOptions{
 		ReadOnly: false,
 		Limit:    cfg.Cache,
-		Storage:  "zdb://hub.grid.tf:9900",
 	})
 	if err != nil {
 		err = errors.Wrap(err, "failed to mount qsfs flist")
