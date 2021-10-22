@@ -34,6 +34,7 @@ type ZDB struct {
 	Size     gridtypes.Unit `json:"size"`
 	Mode     ZDBMode        `json:"mode"`
 	Password string         `json:"password"`
+	DiskType DeviceType     `json:"disk_type"`
 	Public   bool           `json:"public"`
 }
 
@@ -47,6 +48,9 @@ func (z ZDB) Valid(getter gridtypes.WorkloadGetter) error {
 		return fmt.Errorf("invalid mode")
 	}
 
+	if err := z.DiskType.Valid(); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -62,7 +66,9 @@ func (z ZDB) Challenge(b io.Writer) error {
 	if _, err := fmt.Fprintf(b, "%s", z.Password); err != nil {
 		return err
 	}
-
+	if _, err := fmt.Fprintf(b, "%s", z.DiskType.String()); err != nil {
+		return err
+	}
 	if _, err := fmt.Fprintf(b, "%t", z.Public); err != nil {
 		return err
 	}
@@ -72,7 +78,15 @@ func (z ZDB) Challenge(b io.Writer) error {
 
 // Capacity implements WorkloadData
 func (z ZDB) Capacity() (cap gridtypes.Capacity, err error) {
-	cap.HRU = z.Size
+	switch z.DiskType {
+	case HDDDevice:
+		cap.HRU = z.Size
+	case SSDDevice:
+		cap.SRU = z.Size
+	default:
+		return cap, fmt.Errorf("invalid volume type '%s'", z.DiskType.String())
+	}
+
 	return
 }
 
