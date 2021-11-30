@@ -132,7 +132,7 @@ func (n *Network) listPublicIps() (interface{}, mw.Response) {
 			if err != nil {
 				return nil, mw.Error(errors.Wrap(err, "failed to load deployment"))
 			}
-			workloads := deployment.ByType(test.PublicIPType)
+			workloads := deployment.ByType(test.PublicIPv4Type, test.PublicIPType)
 
 			for _, workload := range workloads {
 				if workload.Result.State != gridtypes.StateOk {
