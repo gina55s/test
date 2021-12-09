@@ -9,7 +9,6 @@ import (
 	"github.com/threefoldtech/test/pkg/gridtypes"
 )
 
-
 // Provision interface
 type Provision interface {
 	DecommissionCached(id string, reason string) error
