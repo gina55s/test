@@ -47,7 +47,7 @@ done
 shift $(($OPTIND - 1))
 
 
-cmdline="console=ttyS1,115200n8 $kernelargs"
+cmdline="console=ttyS1,115200n8 test-debug test-debug-vm $kernelargs"
 basepath=$(dirname $0)
 vmdir="$basepath/$name"
 md5=$(echo -n $name | md5sum | awk '{print $1}')
