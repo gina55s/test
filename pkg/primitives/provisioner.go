@@ -49,6 +49,8 @@ func NewPrimitivesProvisioner(zbus zbus.Client) *Primitives {
 	updaters := map[gridtypes.WorkloadType]provision.DeployFunction{
 		test.NetworkType:       p.networkProvision,
 		test.QuantumSafeFSType: p.qsfsUpdate,
+		test.ZDBType:           p.zdbUpdate,
+		test.ZMountType:        p.zMountUpdate,
 	}
 
 	p.Provisioner = provision.NewMapProvisioner(provisioners, decommissioners, updaters)
