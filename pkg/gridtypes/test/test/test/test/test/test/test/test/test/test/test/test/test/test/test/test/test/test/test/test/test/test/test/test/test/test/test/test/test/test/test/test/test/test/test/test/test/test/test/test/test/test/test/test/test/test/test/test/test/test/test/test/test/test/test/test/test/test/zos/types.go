@@ -15,32 +15,22 @@ const (
 	ZDBType gridtypes.WorkloadType = "zdb"
 	// ZMachineType type
 	ZMachineType gridtypes.WorkloadType = "zmachine"
-	//PublicIPv4Type type [deprecated]
-	PublicIPv4Type gridtypes.WorkloadType = "ipv4"
-	//PublicIPType type is the new way to assign public ips
-	// to a VM. this has flags (V4, and V6) that has to be set.
-	PublicIPType gridtypes.WorkloadType = "ip"
+	//PublicIPType type
+	PublicIPType gridtypes.WorkloadType = "ipv4"
 	// GatewayNameProxyType type
 	GatewayNameProxyType gridtypes.WorkloadType = "gateway-name-proxy"
 	// GatewayFQDNProxyType type
 	GatewayFQDNProxyType gridtypes.WorkloadType = "gateway-fqdn-proxy"
-	// QuantumSafeFSType type
-	QuantumSafeFSType gridtypes.WorkloadType = "qsfs"
 )
 
 func init() {
-	// network is a sharable type, which means for a single
-	// twin, the network objects can be 'used' from different
-	// deployments.
-	gridtypes.RegisterSharableType(NetworkType, Network{})
 	gridtypes.RegisterType(ZMountType, ZMount{})
+	gridtypes.RegisterType(NetworkType, Network{})
 	gridtypes.RegisterType(ZDBType, ZDB{})
 	gridtypes.RegisterType(ZMachineType, ZMachine{})
-	gridtypes.RegisterType(PublicIPv4Type, PublicIP4{})
 	gridtypes.RegisterType(PublicIPType, PublicIP{})
 	gridtypes.RegisterType(GatewayNameProxyType, GatewayNameProxy{})
 	gridtypes.RegisterType(GatewayFQDNProxyType, GatewayFQDNProxy{})
-	gridtypes.RegisterType(QuantumSafeFSType, QuantumSafeFS{})
 }
 
 // DeviceType is the actual type of hardware that the storage device runs on,
