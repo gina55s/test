@@ -6,11 +6,11 @@ import (
 	"path/filepath"
 
 	"github.com/rs/zerolog/log"
+	"github.com/threefoldtech/test/cmds/modules/capacityd"
 	"github.com/threefoldtech/test/cmds/modules/contd"
 	"github.com/threefoldtech/test/cmds/modules/flistd"
 	"github.com/threefoldtech/test/cmds/modules/gateway"
 	"github.com/threefoldtech/test/cmds/modules/networkd"
-	"github.com/threefoldtech/test/cmds/modules/noded"
 	"github.com/threefoldtech/test/cmds/modules/provisiond"
 	"github.com/threefoldtech/test/cmds/modules/qsfsd"
 	"github.com/threefoldtech/test/cmds/modules/storaged"
@@ -41,7 +41,7 @@ func main() {
 			&flistd.Module,
 			&contd.Module,
 			&vmd.Module,
-			&noded.Module,
+			&capacityd.Module,
 			&networkd.Module,
 			&provisiond.Module,
 			&zbusdebug.Module,
