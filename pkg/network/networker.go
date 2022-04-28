@@ -17,6 +17,7 @@ import (
 	"github.com/blang/semver"
 
 	"github.com/threefoldtech/test/pkg/cache"
+	"github.com/threefoldtech/test/pkg/gridtypes/test"
 	"github.com/threefoldtech/test/pkg/network/ndmz"
 	"github.com/threefoldtech/test/pkg/network/public"
 	"github.com/threefoldtech/test/pkg/network/tuntap"
@@ -823,6 +824,10 @@ func (n *networker) DeleteNR(netNR pkg.Network) error {
 	}
 
 	return nil
+}
+
+func (n *networker) Namespace(id test.NetID) string {
+	return fmt.Sprintf("n-%s", id)
 }
 
 // Set node public namespace config

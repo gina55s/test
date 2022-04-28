@@ -32,6 +32,7 @@ func NewPrimitivesProvisioner(zbus zbus.Client) *Primitives {
 		test.GatewayNameProxyType: p.gwProvision,
 		test.GatewayFQDNProxyType: p.gwFQDNProvision,
 		test.QuantumSafeFSType:    p.qsfsProvision,
+		test.ZLogsType:            p.zlogsProvision,
 	}
 	decommissioners := map[gridtypes.WorkloadType]provision.RemoveFunction{
 		test.ZMountType:           p.zMountDecommission,
@@ -43,6 +44,7 @@ func NewPrimitivesProvisioner(zbus zbus.Client) *Primitives {
 		test.GatewayNameProxyType: p.gwDecommission,
 		test.GatewayFQDNProxyType: p.gwFQDNDecommission,
 		test.QuantumSafeFSType:    p.qsfsDecommision,
+		test.ZLogsType:            p.zlogsDecomission,
 	}
 
 	// only network support update atm

@@ -296,6 +296,8 @@ func action(cli *cli.Context) error {
 			test.NetworkType,
 			test.PublicIPv4Type,
 			test.PublicIPType,
+			test.ZMachineType,
+			test.ZLogsType, //make sure zlogs comes after zmachine
 		),
 		// if this is a node reboot, the node needs to
 		// recreate all reservations. so we set rerun = true
