@@ -8,7 +8,6 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/threefoldtech/substrate-client"
 	"github.com/threefoldtech/zbus"
-	"github.com/threefoldtech/test/pkg"
 	"github.com/threefoldtech/test/pkg/provision"
 	"github.com/threefoldtech/test/pkg/stubs"
 )
@@ -123,18 +122,6 @@ func (r *ContractEventHandler) Run(ctx context.Context) error {
 				}
 			}()
 		case event := <-cancellation:
-			if event.Kind == pkg.EventSubscribed {
-				// we run this in a go routine because we don't
-				// want synchronization of contracts on the chain (that can take some time)
-				// to block
-				go func() {
-					if err := r.sync(ctx); err != nil {
-						log.Error().Err(err).Msg("failed to synchronize contracts with the chain")
-					}
-				}()
-				continue
-			}
-
 			log.Debug().Msgf("received a cancel contract event %+v", event)
 
 			// otherwise we know what contract to be deleted
