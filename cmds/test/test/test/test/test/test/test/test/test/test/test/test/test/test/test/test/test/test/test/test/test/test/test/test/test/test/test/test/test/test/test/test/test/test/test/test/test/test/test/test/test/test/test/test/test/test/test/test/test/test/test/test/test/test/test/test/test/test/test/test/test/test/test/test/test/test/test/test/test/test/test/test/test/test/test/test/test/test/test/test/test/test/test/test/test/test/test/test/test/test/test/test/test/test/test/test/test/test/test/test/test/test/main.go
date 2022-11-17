@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/threefoldtech/test/cmds/modules/contd"
 	"github.com/threefoldtech/test/cmds/modules/flistd"
@@ -29,17 +28,11 @@ func main() {
 	exe := cli.App{
 		Name:    "ZOS",
 		Version: version.Current().String(),
-
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:   "list",
 				Hidden: true,
 				Usage:  "print all available clients names",
-			},
-			&cli.BoolFlag{
-				Name:    "debug",
-				Aliases: []string{"d"},
-				Usage:   "force debug level",
 			},
 		},
 		Commands: []*cli.Command{
@@ -54,13 +47,6 @@ func main() {
 			&zbusdebug.Module,
 			&gateway.Module,
 			&qsfsd.Module,
-		},
-		Before: func(c *cli.Context) error {
-			if c.Bool("debug") {
-				zerolog.SetGlobalLevel(zerolog.DebugLevel)
-				log.Debug().Msg("setting log level to debug")
-			}
-			return nil
 		},
 		Action: func(c *cli.Context) error {
 			if !c.Bool("list") {
