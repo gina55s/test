@@ -10,7 +10,6 @@ import (
 	"github.com/shirou/gopsutil/mem"
 	"github.com/threefoldtech/test/pkg"
 	"github.com/threefoldtech/test/pkg/gridtypes"
-	"github.com/threefoldtech/test/pkg/gridtypes/test"
 	"github.com/threefoldtech/test/pkg/provision"
 	"github.com/threefoldtech/test/pkg/rmb"
 )
@@ -130,12 +129,6 @@ func (s *Statistics) Provision(ctx context.Context, wl *gridtypes.WorkloadWithID
 	if err != nil {
 		return result, errors.Wrap(err, "failed to calculate workload needed capacity")
 	}
-
-	// we add extra overhead for some workload types here
-	if wl.Type == test.ZMachineType {
-		// we add the min of 5% of allocated memory or 1G
-		needed.MRU += gridtypes.Min(needed.MRU*5/100, gridtypes.Gigabyte)
-	} // TODO: other types ?
 
 	current, err := s.hasEnoughCapacity(&needed)
 	if err != nil {
