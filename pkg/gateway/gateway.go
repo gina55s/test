@@ -20,6 +20,7 @@ import (
 	"github.com/threefoldtech/test/pkg"
 	"github.com/threefoldtech/test/pkg/environment"
 	"github.com/threefoldtech/test/pkg/gridtypes"
+	"github.com/threefoldtech/test/pkg/gridtypes/test"
 	"github.com/threefoldtech/test/pkg/stubs"
 	"github.com/threefoldtech/test/pkg/zinit"
 	"gopkg.in/yaml.v2"
@@ -566,13 +567,13 @@ func (g *gatewayModule) setupRouting(wlID string, fqdn string, backends []string
 	servers := make([]Server, len(backends))
 	for idx, backend := range backends {
 		if TLSPassthrough {
+			if err := test.Backend(backend).Valid(true); err != nil {
+				return errors.Wrap(err, "couldn't validate backend host")
+			}
 			u, err := url.Parse(backend)
 			log.Debug().Str("hostname", u.Host).Str("backend", backend).Msg("tls passthrough")
 			if err != nil {
 				return errors.Wrap(err, "couldn't parse backend host")
-			}
-			if u.Scheme != "https" {
-				return errors.New("enabling tls passthrough requires backends to have https scheme")
 			}
 			servers[idx] = Server{
 				Address: u.Host,
