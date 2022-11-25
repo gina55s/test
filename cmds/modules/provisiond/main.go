@@ -16,6 +16,7 @@ import (
 	"github.com/threefoldtech/test/pkg/app"
 	"github.com/threefoldtech/test/pkg/capacity"
 	"github.com/threefoldtech/test/pkg/environment"
+	"github.com/threefoldtech/test/pkg/events"
 	"github.com/threefoldtech/test/pkg/gridtypes"
 	"github.com/threefoldtech/test/pkg/gridtypes/test"
 	"github.com/threefoldtech/test/pkg/primitives"
@@ -339,7 +340,12 @@ func action(cli *cli.Context) error {
 		log.Error().Err(err).Msg("failed to mark module as booted")
 	}
 
-	handler := NewContractEventHandler(node, mgr, engine, cl)
+	consumer, err := events.NewConsumer(msgBrokerCon, provisionModule)
+	if err != nil {
+		return errors.Wrap(err, "failed to create event consumer")
+	}
+
+	handler := NewContractEventHandler(node, mgr, engine, consumer)
 
 	go func() {
 		if err := handler.Run(ctx); err != nil && err != context.Canceled {
