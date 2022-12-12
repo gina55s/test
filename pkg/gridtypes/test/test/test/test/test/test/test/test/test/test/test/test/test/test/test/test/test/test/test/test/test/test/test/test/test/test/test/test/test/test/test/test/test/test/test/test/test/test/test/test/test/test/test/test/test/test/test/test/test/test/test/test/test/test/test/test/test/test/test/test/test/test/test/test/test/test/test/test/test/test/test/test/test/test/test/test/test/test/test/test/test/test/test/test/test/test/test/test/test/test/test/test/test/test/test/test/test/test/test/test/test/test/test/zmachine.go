@@ -11,6 +11,10 @@ import (
 	"github.com/threefoldtech/test/pkg/gridtypes"
 )
 
+const (
+	sizeInGBPerCU = 50 // GB
+)
+
 // MachineInterface structure
 type MachineInterface struct {
 	// Network name (znet name) to join
@@ -121,21 +125,13 @@ type ZMachine struct {
 	Entrypoint string `json:"entrypoint"`
 	// Env variables available for a container
 	Env map[string]string `json:"env"`
-	// Corex works in container mode which forces replace the
-	// entrypoing of the container to use `corex`
-	Corex bool `json:"corex"`
 }
 
 func (m *ZMachine) MinRootSize() gridtypes.Unit {
 	// sru = (cpu * mem_in_gb) / 8
 	// each 1 SRU is 50GB of storage
-	cu := gridtypes.Unit(m.ComputeCapacity.CPU) * m.ComputeCapacity.Memory / (8 * gridtypes.Gigabyte)
-
-	if cu == 0 {
-		return 500 * gridtypes.Megabyte
-	}
-
-	return 2 * gridtypes.Gigabyte
+	su := gridtypes.Unit(m.ComputeCapacity.CPU) * m.ComputeCapacity.Memory / 8
+	return gridtypes.Unit(su * sizeInGBPerCU)
 }
 
 func (m *ZMachine) RootSize() gridtypes.Unit {
@@ -201,8 +197,8 @@ func (v ZMachine) Valid(getter gridtypes.WorkloadGetter) error {
 	}
 
 	for _, ifc := range v.Network.Interfaces {
-		if ifc.Network == "ygg" || ifc.Network == "pub" { //reserved temporary
-			return fmt.Errorf("'%s' is reserved network name", ifc.Network)
+		if ifc.Network == "ygg" { //reserved temporary
+			return fmt.Errorf("ygg is not a valid network name")
 		}
 	}
 
