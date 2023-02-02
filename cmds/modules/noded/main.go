@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 
+	"github.com/threefoldtech/rmb-sdk-go"
 	"github.com/threefoldtech/substrate-client"
 	"github.com/threefoldtech/test/pkg/app"
 	"github.com/threefoldtech/test/pkg/capacity"
@@ -19,7 +20,6 @@ import (
 	"github.com/threefoldtech/test/pkg/events"
 	"github.com/threefoldtech/test/pkg/monitord"
 	"github.com/threefoldtech/test/pkg/registrar"
-	"github.com/threefoldtech/test/pkg/rmb"
 	"github.com/threefoldtech/test/pkg/stubs"
 	"github.com/threefoldtech/test/pkg/utils"
 
@@ -143,7 +143,7 @@ func action(cli *cli.Context) error {
 		WithVirtualized(len(hypervisor) != 0)
 
 	go registerationServer(ctx, msgBrokerCon, env, info)
-	bus, err := rmb.New(msgBrokerCon)
+	bus, err := rmb.NewRouter(msgBrokerCon)
 	if err != nil {
 		return errors.Wrap(err, "failed to initialize message bus server")
 	}
@@ -292,7 +292,7 @@ func action(cli *cli.Context) error {
 	}()
 
 	log.Debug().Msg("start message bus")
-	return runMsgBus(ctx, sub, id)
+	return runMsgBus(ctx, sk, env.SubstrateURL, env.RelayURL, msgBrokerCon)
 }
 
 func retryNotify(err error, d time.Duration) {

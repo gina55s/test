@@ -5,10 +5,10 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
+	"github.com/threefoldtech/rmb-sdk-go"
 	"github.com/threefoldtech/test/pkg/gridtypes"
 	"github.com/threefoldtech/test/pkg/gridtypes/test"
 	"github.com/threefoldtech/test/pkg/provision"
-	"github.com/threefoldtech/test/pkg/rmb"
 )
 
 // Deployments message bus API

@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/threefoldtech/rmb-sdk-go"
 	"github.com/threefoldtech/test/pkg/network/dhcp"
 	"github.com/threefoldtech/test/pkg/network/public"
 	"github.com/threefoldtech/test/pkg/network/types"
-	"github.com/threefoldtech/test/pkg/rmb"
 	"github.com/threefoldtech/test/pkg/zinit"
 	"github.com/urfave/cli/v2"
 
@@ -154,7 +154,7 @@ func action(cli *cli.Context) error {
 		return errors.Wrap(err, "error creating network manager")
 	}
 
-	mBus, err := rmb.New(broker)
+	mBus, err := rmb.NewRouter(broker)
 	if err != nil {
 		return errors.Wrap(err, "failed to initialize message bus")
 	}
@@ -181,7 +181,7 @@ func action(cli *cli.Context) error {
 	return nil
 }
 
-func startRmbServer(ctx context.Context, bus *rmb.MessageBus) error {
+func startRmbServer(ctx context.Context, bus *rmb.DefaultRouter) error {
 	log.Info().
 		Msg("starting networkd rmb module")
 

@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"github.com/rusart/muxprom"
+	"github.com/threefoldtech/rmb-sdk-go"
 	"github.com/threefoldtech/substrate-client"
 	"github.com/threefoldtech/test/pkg"
 	"github.com/threefoldtech/test/pkg/app"
@@ -23,7 +24,6 @@ import (
 	"github.com/threefoldtech/test/pkg/provision/mbus"
 	"github.com/threefoldtech/test/pkg/provision/storage"
 	fsStorage "github.com/threefoldtech/test/pkg/provision/storage.fs"
-	"github.com/threefoldtech/test/pkg/rmb"
 	"github.com/urfave/cli/v2"
 
 	"github.com/threefoldtech/test/pkg/stubs"
@@ -383,7 +383,7 @@ func action(cli *cli.Context) error {
 		log.Info().Msg("zbus server stopped")
 	}()
 
-	mBus, err := rmb.New(msgBrokerCon)
+	mBus, err := rmb.NewRouter(msgBrokerCon)
 	if err != nil {
 		return errors.Wrap(err, "Failed to initialize message bus")
 	}

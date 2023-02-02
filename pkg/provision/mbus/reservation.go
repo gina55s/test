@@ -7,10 +7,10 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/threefoldtech/rmb-sdk-go"
 	"github.com/threefoldtech/test/pkg/gridtypes"
 	"github.com/threefoldtech/test/pkg/provision"
 	"github.com/threefoldtech/test/pkg/provision/mw"
-	"github.com/threefoldtech/test/pkg/rmb"
 )
 
 type idArgs struct {

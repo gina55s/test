@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/threefoldtech/test/pkg/rmb"
+	"github.com/threefoldtech/rmb-sdk-go"
 )
 
 func ExampleClient() {
