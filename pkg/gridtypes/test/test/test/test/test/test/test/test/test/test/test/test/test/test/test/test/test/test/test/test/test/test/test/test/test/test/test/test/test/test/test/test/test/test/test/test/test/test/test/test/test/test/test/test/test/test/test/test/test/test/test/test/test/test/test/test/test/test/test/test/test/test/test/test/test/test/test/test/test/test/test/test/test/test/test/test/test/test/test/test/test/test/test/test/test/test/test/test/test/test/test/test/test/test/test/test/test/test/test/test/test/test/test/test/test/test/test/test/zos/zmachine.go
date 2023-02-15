@@ -121,9 +121,6 @@ type ZMachine struct {
 	Entrypoint string `json:"entrypoint"`
 	// Env variables available for a container
 	Env map[string]string `json:"env"`
-	// Corex works in container mode which forces replace the
-	// entrypoing of the container to use `corex`
-	Corex bool `json:"corex"`
 }
 
 func (m *ZMachine) MinRootSize() gridtypes.Unit {
@@ -201,8 +198,8 @@ func (v ZMachine) Valid(getter gridtypes.WorkloadGetter) error {
 	}
 
 	for _, ifc := range v.Network.Interfaces {
-		if ifc.Network == "ygg" || ifc.Network == "pub" { //reserved temporary
-			return fmt.Errorf("'%s' is reserved network name", ifc.Network)
+		if ifc.Network == "ygg" { //reserved temporary
+			return fmt.Errorf("ygg is not a valid network name")
 		}
 	}
 
