@@ -15,7 +15,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rusart/muxprom"
 	"github.com/threefoldtech/rmb-sdk-go"
-	"github.com/threefoldtech/substrate-client"
+	substrate "github.com/threefoldtech/tfchain/clients/tfchain-client-go"
 	"github.com/threefoldtech/test/pkg"
 	"github.com/threefoldtech/test/pkg/app"
 	"github.com/threefoldtech/test/pkg/capacity"
