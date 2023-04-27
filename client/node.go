@@ -76,7 +76,7 @@ import (
 	"context"
 	"net"
 
-	"github.com/threefoldtech/rmb-sdk-go"
+	"github.com/threefoldtech/tfgrid-sdk-go/rmb-sdk-go"
 	"github.com/threefoldtech/test/pkg"
 	"github.com/threefoldtech/test/pkg/capacity/dmi"
 	"github.com/threefoldtech/test/pkg/gridtypes"
