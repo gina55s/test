@@ -82,11 +82,3 @@ type PublicIPResult struct {
 	// also provide
 	Gateway net.IP `json:"gateway"`
 }
-
-func (p *PublicIPResult) HasIPv4() bool {
-	return p.IP.IP.To4() != nil
-}
-
-func (p *PublicIPResult) HasIPv6() bool {
-	return p.IPv6.IP.To16() != nil
-}
