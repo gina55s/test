@@ -26,8 +26,6 @@ const (
 	GatewayFQDNProxyType gridtypes.WorkloadType = "gateway-fqdn-proxy"
 	// QuantumSafeFSType type
 	QuantumSafeFSType gridtypes.WorkloadType = "qsfs"
-	// ZLogsType type
-	ZLogsType gridtypes.WorkloadType = "zlogs"
 )
 
 func init() {
@@ -43,7 +41,6 @@ func init() {
 	gridtypes.RegisterType(GatewayNameProxyType, GatewayNameProxy{})
 	gridtypes.RegisterType(GatewayFQDNProxyType, GatewayFQDNProxy{})
 	gridtypes.RegisterType(QuantumSafeFSType, QuantumSafeFS{})
-	gridtypes.RegisterType(ZLogsType, ZLogs{})
 }
 
 // DeviceType is the actual type of hardware that the storage device runs on,
