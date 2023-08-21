@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
+	"github.com/threefoldtech/test/pkg/gridtypes/test"
 )
 
 var (
@@ -306,6 +307,45 @@ func (p *btrfsPool) Shutdown() error {
 	}
 
 	return nil
+}
+
+// SetType sets the device type to the disk
+func (p *btrfsPool) SetType(typ test.DeviceType) error {
+	path, err := p.Mounted()
+	if err != nil {
+		return err
+	}
+	diskTypePath := filepath.Join(path, ".seektime")
+	if err := os.WriteFile(diskTypePath, []byte(typ), 0644); err != nil {
+		return errors.Wrapf(err, "failed to store device type for '%s' in '%s'", p.Name(), diskTypePath)
+	}
+
+	return nil
+}
+
+// Type gets the device type from the disk
+// return the device type, if it's found and an error
+// that's based on .seektime file existing in the /mnt/DeviceName/.seektime, that contains the device type being SSD or HDD
+func (p *btrfsPool) Type() (test.DeviceType, bool, error) {
+	path, err := p.Mounted()
+	if err != nil {
+		return "", false, err
+	}
+	diskTypePath := filepath.Join(path, ".seektime")
+	diskType, err := os.ReadFile(diskTypePath)
+	if os.IsNotExist(err) {
+		return "", false, nil
+	}
+
+	if err != nil {
+		return "", false, err
+	}
+
+	if len(diskType) == 0 {
+		return "", false, nil
+	}
+
+	return test.DeviceType(diskType), true, nil
 }
 
 type btrfsVolume struct {

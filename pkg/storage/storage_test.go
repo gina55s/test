@@ -91,8 +91,12 @@ func (p *testPool) UnMount() error {
 	return fmt.Errorf("UnMount not implemented")
 }
 
-func (p *testPool) Type() test.DeviceType {
-	return p.ptype
+func (p *testPool) Type() (test.DeviceType, bool, error) {
+	return p.ptype, false, nil
+}
+
+func (p *testPool) SetType(_ test.DeviceType) error {
+	return nil
 }
 
 func (p *testPool) Volumes() ([]filesystem.Volume, error) {

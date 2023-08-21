@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/pkg/errors"
+	"github.com/threefoldtech/test/pkg/gridtypes/test"
 )
 
 // Usage struct (in bytes)
@@ -72,6 +73,13 @@ type Pool interface {
 	Shutdown() error
 	// Device return device associated with pool
 	Device() DeviceInfo
+	// SetType sets a device type on the pool. this will make
+	// sure that the detected device type is reported
+	// correctly by calling the Type() method.
+	SetType(typ test.DeviceType) error
+	// Type returns the device type set by a previous call
+	// to SetType.
+	Type() (test.DeviceType, bool, error)
 }
 
 // Filter closure for Filesystem list
