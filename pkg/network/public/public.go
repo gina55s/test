@@ -14,6 +14,7 @@ import (
 	"github.com/threefoldtech/test/pkg/network/bootstrap"
 	"github.com/threefoldtech/test/pkg/network/bridge"
 	"github.com/threefoldtech/test/pkg/network/ifaceutil"
+	"github.com/threefoldtech/test/pkg/network/iperf"
 	"github.com/threefoldtech/test/pkg/network/macvlan"
 	"github.com/threefoldtech/test/pkg/network/namespace"
 	"github.com/threefoldtech/test/pkg/network/options"
@@ -338,6 +339,10 @@ func EnsurePublicSetup(nodeID pkg.Identifier, inf *pkg.PublicConfig) (*netlink.B
 	} else {
 		if err := setupPublicNS(nodeID, inf); err != nil {
 			return nil, errors.Wrap(err, "failed to ensure public namespace setup")
+		}
+
+		if err := iperf.Ensure(zinit.Default()); err != nil {
+			return nil, errors.Wrap(err, "failed to ensure iperf service")
 		}
 	}
 
