@@ -16,6 +16,8 @@ const (
 	// VirtualMachine forces test to think it's running
 	// on a virtual machine. used mainly for development
 	VirtualMachine = "test-debug-vm"
+	// if disable-gpu flag is provided gpu feature will be disabled on that node
+	DisableGPU = "disable-gpu"
 )
 
 // Params represent the parameters passed to the kernel at boot
@@ -39,6 +41,11 @@ func (k Params) Get(key string) ([]string, bool) {
 // IsDebug checks if test-debug is set
 func (k Params) IsDebug() bool {
 	return k.Exists(Debug)
+}
+
+// GPUDisabled checks if gpu is diabled
+func (k Params) IsGPUDisabled() bool {
+	return k.Exists(DisableGPU)
 }
 
 // IsVirtualMachine checks if test-debug-vm is set
