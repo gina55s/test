@@ -6,7 +6,6 @@ package stubs
 
 import (
 	"context"
-
 	zbus "github.com/threefoldtech/zbus"
 	pkg "github.com/threefoldtech/test/pkg"
 	gridtypes "github.com/threefoldtech/test/pkg/gridtypes"
