@@ -17,6 +17,7 @@ import (
 	"github.com/blang/semver"
 
 	"github.com/threefoldtech/test/pkg/cache"
+	"github.com/threefoldtech/test/pkg/environment"
 	"github.com/threefoldtech/test/pkg/gridtypes"
 	"github.com/threefoldtech/test/pkg/gridtypes/test"
 	"github.com/threefoldtech/test/pkg/network/bootstrap"
@@ -932,7 +933,7 @@ func (n *networker) Namespace(id test.NetID) string {
 
 func (n *networker) UnsetPublicConfig() error {
 	id := n.identity.NodeID(context.Background())
-	_, err := public.EnsurePublicSetup(id, nil)
+	_, err := public.EnsurePublicSetup(id, environment.MustGet().PubVlan, nil)
 	return err
 }
 
@@ -953,7 +954,7 @@ func (n *networker) SetPublicConfig(cfg pkg.PublicConfig) error {
 	}
 
 	id := n.identity.NodeID(context.Background())
-	_, err = public.EnsurePublicSetup(id, &cfg)
+	_, err = public.EnsurePublicSetup(id, environment.MustGet().PubVlan, &cfg)
 	if err != nil {
 		return errors.Wrap(err, "failed to apply public config")
 	}

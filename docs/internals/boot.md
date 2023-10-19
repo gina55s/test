@@ -15,3 +15,7 @@ both `node-ready` and `boot` are not actual services, but instead they are there
 - `test-debug`: means test is running in debug mode
 - `test-debug-vm`: forces test to think it's running on a virtual machine. used mainly for development
 - `disable-gpu`: if provided GPU feature will be disabled on that node
+- `vlan:pub`: set the vlan tag of the node private subnet.
+- `vlan:priv`: sets the vlan tag of the node public subnet.
+
+For more details of `VLAN` support in test please read more [here](network/vlans.md)
