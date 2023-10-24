@@ -21,6 +21,8 @@ import (
 	"github.com/threefoldtech/test/pkg/events"
 	"github.com/threefoldtech/test/pkg/monitord"
 	"github.com/threefoldtech/test/pkg/perf"
+	"github.com/threefoldtech/test/pkg/perf/cpubench"
+	"github.com/threefoldtech/test/pkg/perf/iperf"
 	"github.com/threefoldtech/test/pkg/registrar"
 	"github.com/threefoldtech/test/pkg/stubs"
 	"github.com/threefoldtech/test/pkg/utils"
@@ -202,10 +204,9 @@ func action(cli *cli.Context) error {
 		return errors.Wrap(err, "failed to create a new perfMon")
 	}
 
-	iperfTest := perf.NewIperfTest()
-	perfMon.AddTask(&iperfTest)
+	perfMon.AddTask(iperf.NewTask())
 
-	cpuBenchmarkTask := perf.NewCPUBenchmarkTask()
+	cpuBenchmarkTask := cpubench.NewCPUBenchmarkTask()
 	perfMon.AddTask(&cpuBenchmarkTask)
 
 	if err = perfMon.Run(ctx); err != nil {
