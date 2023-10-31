@@ -21,6 +21,7 @@ import (
 	"github.com/threefoldtech/test/pkg/events"
 	"github.com/threefoldtech/test/pkg/monitord"
 	"github.com/threefoldtech/test/pkg/perf"
+	"github.com/threefoldtech/test/pkg/perf/publicip"
 	"github.com/threefoldtech/test/pkg/perf/cpubench"
 	"github.com/threefoldtech/test/pkg/perf/iperf"
 	"github.com/threefoldtech/test/pkg/registrar"
@@ -208,6 +209,8 @@ func action(cli *cli.Context) error {
 
 	cpuBenchmarkTask := cpubench.NewCPUBenchmarkTask()
 	perfMon.AddTask(&cpuBenchmarkTask)
+
+	perfMon.AddTask(publicip.NewTask())
 
 	if err = perfMon.Run(ctx); err != nil {
 		return errors.Wrap(err, "failed to run the scheduler")
