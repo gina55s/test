@@ -17,21 +17,14 @@ var (
 
 type Backend string
 
-// check if valid http://ip:port, http://ip or ip:port
-func (b Backend) Valid(tls bool) error {
+// check if valid http://x.x.x.x:port or [::]:port
+func (b Backend) Valid() error {
 	u, err := url.Parse(string(b))
 	if err != nil {
 		return errors.Wrap(err, "failed to parse backend")
 	}
-	if tls {
-		if u.Scheme != "" {
-			return fmt.Errorf("scheme expected to be empty")
-		}
-		if u.Port() == "" {
-			return fmt.Errorf("missing port in backend address")
-		}
-	} else if u.Scheme != "http" {
-		return fmt.Errorf("scheme expected to be http")
+	if u.Scheme != "http" && u.Scheme != "https" {
+		return fmt.Errorf("invalid scheme expected http, or https")
 	}
 
 	ip := net.ParseIP(u.Hostname())
@@ -64,7 +57,7 @@ func (g GatewayFQDNProxy) Valid(getter gridtypes.WorkloadGetter) error {
 		return fmt.Errorf("backends list can not be empty")
 	}
 	for _, backend := range g.Backends {
-		if err := backend.Valid(g.TLSPassthrough); err != nil {
+		if err := backend.Valid(); err != nil {
 			return errors.Wrapf(err, "failed to validate backend '%s'", backend)
 		}
 	}
