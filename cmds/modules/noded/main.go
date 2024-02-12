@@ -17,6 +17,7 @@ import (
 	"github.com/threefoldtech/tfgrid-sdk-go/rmb-sdk-go"
 	"github.com/threefoldtech/test/pkg/app"
 	"github.com/threefoldtech/test/pkg/capacity"
+	"github.com/threefoldtech/test/pkg/diagnostics"
 	"github.com/threefoldtech/test/pkg/environment"
 	"github.com/threefoldtech/test/pkg/events"
 	"github.com/threefoldtech/test/pkg/monitord"
@@ -24,6 +25,7 @@ import (
 	"github.com/threefoldtech/test/pkg/perf/cpubench"
 	"github.com/threefoldtech/test/pkg/perf/healthcheck"
 	"github.com/threefoldtech/test/pkg/perf/iperf"
+	"github.com/threefoldtech/test/pkg/perf/networkhealth"
 	"github.com/threefoldtech/test/pkg/perf/publicip"
 	"github.com/threefoldtech/test/pkg/registrar"
 	"github.com/threefoldtech/test/pkg/stubs"
@@ -191,6 +193,14 @@ func action(cli *cli.Context) error {
 		return version, nil
 	})
 
+	diagnosticsMgr, err := diagnostics.NewDiagnosticsManager(msgBrokerCon, redis)
+	if err != nil {
+		return errors.Wrap(err, "failed to create a new Diagnostics manager")
+	}
+	bus.WithHandler("test.system.diagnostics", func(ctx context.Context, payload []byte) (interface{}, error) {
+		return diagnosticsMgr.GetSystemDiagnostics(ctx)
+	})
+
 	bus.WithHandler("test.system.dmi", func(ctx context.Context, payload []byte) (interface{}, error) {
 		return dmi, nil
 	})
@@ -210,6 +220,7 @@ func action(cli *cli.Context) error {
 	perfMon.AddTask(cpubench.NewTask())
 	perfMon.AddTask(publicip.NewTask())
 	perfMon.AddTask(healthcheck.NewTask())
+	perfMon.AddTask(networkhealth.NewTask())
 
 	if err = perfMon.Run(ctx); err != nil {
 		return errors.Wrap(err, "failed to run the scheduler")
