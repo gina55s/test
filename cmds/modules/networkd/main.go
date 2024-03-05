@@ -164,7 +164,7 @@ func action(cli *cli.Context) error {
 	testRouter := mBus.Subroute("test")
 	testRouter.Use(rmb.LoggerMiddleware)
 
-	if _, err := network.NewNetworkMessageBus(testRouter, networker); err != nil {
+	if _, err := network.NewNetworkMessageBus(testRouter, networker, stubs.NewAPIGatewayStub(client)); err != nil {
 		return errors.Wrap(err, "failed to initialize rmb api")
 	}
 
