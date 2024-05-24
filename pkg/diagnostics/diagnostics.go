@@ -8,7 +8,7 @@ import (
 
 	"github.com/gomodule/redigo/redis"
 	"github.com/threefoldtech/zbus"
-	"github.com/threefoldtech/test/pkg/perf"
+	"github.com/threefoldtech/test/pkg"
 	"github.com/threefoldtech/test/pkg/utils"
 )
 
@@ -124,7 +124,7 @@ func (m *DiagnosticsManager) isHealthy() bool {
 		return false
 	}
 
-	var result perf.TaskResult
+	var result pkg.TaskResult
 	if err := json.Unmarshal(data.([]byte), &result); err != nil {
 		return false
 	}
