@@ -3,9 +3,12 @@ package test
 import (
 	"fmt"
 	"io"
+	"regexp"
 
 	"github.com/threefoldtech/test/pkg/gridtypes"
 )
+
+var gwNameRegex = regexp.MustCompile(`^[a-zA-Z0-9-_]+$`)
 
 // GatewayNameProxy definition. this will proxy name.<test.domain> to backends
 type GatewayNameProxy struct {
@@ -16,7 +19,7 @@ type GatewayNameProxy struct {
 
 func (g GatewayNameProxy) Valid(getter gridtypes.WorkloadGetter) error {
 	if !gwNameRegex.MatchString(g.Name) {
-		return fmt.Errorf("invalid name")
+		return fmt.Errorf("name %s is invalid", g.Name)
 	}
 
 	return g.GatewayBase.Valid(getter)
