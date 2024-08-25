@@ -8,7 +8,7 @@ import (
 	"github.com/threefoldtech/test/pkg/gridtypes"
 )
 
-var gwNameRegex = regexp.MustCompile(`^([a-zA-Z0-9-_]+\.)?[a-zA-Z0-9-_]+$`)
+var gwNameRegex = regexp.MustCompile(`^[a-zA-Z0-9-_]+$`)
 
 // GatewayNameProxy definition. this will proxy name.<test.domain> to backends
 type GatewayNameProxy struct {
