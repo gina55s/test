@@ -12,6 +12,7 @@ import (
 	"github.com/threefoldtech/test/cmds/modules/gateway"
 	"github.com/threefoldtech/test/cmds/modules/networkd"
 	"github.com/threefoldtech/test/cmds/modules/noded"
+	"github.com/threefoldtech/test/cmds/modules/powerd"
 	"github.com/threefoldtech/test/cmds/modules/provisiond"
 	"github.com/threefoldtech/test/cmds/modules/qsfsd"
 	"github.com/threefoldtech/test/cmds/modules/storaged"
@@ -54,6 +55,7 @@ func main() {
 			&zbusdebug.Module,
 			&gateway.Module,
 			&qsfsd.Module,
+			&powerd.Module,
 		},
 		Before: func(c *cli.Context) error {
 			if c.Bool("debug") {

@@ -213,6 +213,9 @@ func (n *systemMonitor) GetNodeFeatures() []pkg.NodeFeature {
 		pkg.NodeFeature(test.GatewayFQDNProxyType),
 		pkg.NodeFeature(test.QuantumSafeFSType),
 		pkg.NodeFeature(test.ZLogsType),
+		pkg.NodeFeature("yggdrasil"),
+		pkg.NodeFeature("mycelium"),
+		pkg.NodeFeature("wireguard"),
 	}
 	return feat
 }
