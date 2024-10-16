@@ -8,19 +8,34 @@
 
 ## Starting a local test node
 
-* Make sure `qemu` and `dnsmasq` are installed
-* [Create a farm](https://manual.grid.tf/farmers/3node_building/1_create_farm.html)
-* [Download a test image](https://bootstrap.grid.tf/kernel/zero-os-development-test-v3-generic-7e587e499a.efi)
-* Make sure `test0` bridge is allowed by qemu, you can add `allow test0` in `/etc/qemu/bridge.conf` (create the file if it's not there)
-* Setup the network using this script [this script](../../qemu/net.sh)
+- Make sure `qemu` are installed
+- [Create a farm](https://manual.grid.tf/documentation/farmers/3node_building/1_create_farm.html#create-a-farm)
+- [Download a test image](https://bootstrap.grid.tf/kernel/zero-os-development-test-v3-generic-7e587e499a.efi) (Optional)
+- Make sure `test0` bridge is allowed by qemu, you can add `allow test0` in `/etc/qemu/bridge.conf` (create the file if it's not there)
+- Setup the network using this script [this script](../../qemu/net.sh) Or you can `cd qemu` then run `make net`
 
 Then, inside test repository
 
 ```
 make -C cmds
 cd qemu
+```
+
+If you downloaded your test image move it here
+
+```
 mv <downloaded image path> ./test.efi
-sudo ./vm.sh -n node-01 -c "farmer_id=<your farm id here> printk.devmsg=on runmode=dev"
+```
+
+Or you can run this commands
+
+```
+make prepare
+mv dev.efi test.efi
+```
+
+```
+make run id=<your_farm_id> user=<your_github_username>
 ```
 
 You should see the qemu console and boot logs, wait for awhile and you can [browse farms](https://dashboard.dev.grid.tf/explorer/farms) to see your node is added/detected automatically.
@@ -36,7 +51,7 @@ After booting up, the node should start downloading external packages, this woul
 See [how to ssh into it.](../../qemu/README.md#to-ssh-into-the-machine)
 
 How to get the node IP?
-Given the network script `dhcp-range`, it usually would be one of `192.168.123.43`, `192.168.123.44` or `192.168.123.45`. 
+Given the network script `dhcp-range`, it usually would be one of `192.168.123.43`, `192.168.123.44` or `192.168.123.45`.
 
 Or you can simply install `arp-scan` then do something like:
 
@@ -63,9 +78,9 @@ For example if we changed anything related to `noded`, we can do the following:
 
 Inside test repository:
 
-* Build binaries locally
-    * `make -C cmds`
-* Copy the binary inside the machine
-    * `scp bin/test root@192.168.123.44:/bin/noded`
-* SSH into the machine then use `zinit` to restart it: 
-    * `zinit stop noded && zinit start noded`
+- Build binaries locally
+  - `make -C cmds`
+- Copy the binary inside the machine
+  - `scp bin/test root@192.168.123.44:/bin/noded`
+- SSH into the machine then use `zinit` to restart it:
+  - `zinit stop noded && zinit start noded`
