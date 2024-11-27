@@ -129,42 +129,55 @@ func (w *Worker) updateZosVersion(network Network, manager client.Manager) error
 		return fmt.Errorf("failed to get dst relative path to src: %w", err)
 	}
 
+	//test
 	testCurrent := fmt.Sprintf("%v/.tag-%v", w.src, chainVersion.Version)
 	testLatest := fmt.Sprintf("%v/%v", w.dst, network)
+	// test light
+	testLightCurrent := fmt.Sprintf("%v/.tag-%v", w.src, chainVersion.Version)
+	testLightLatest := fmt.Sprintf("%v/%v-v4", w.dst, network)
 	// the link is like testCurrent but it has the path relative from the symlink
 	// point of view (so relative to the symlink, how to reach testCurrent)
 	// hence the link is instead used in all calls to symlink
-	link := fmt.Sprintf("%v/.tag-%v", path, chainVersion.Version)
+	testLink := fmt.Sprintf("%v/.tag-%v", path, chainVersion.Version)
+	testLightLink := fmt.Sprintf("%v/.tag-%v", path, chainVersion.Version)
 
+	// update links for both test and testlight
+	if err = w.updateLink(testCurrent, testLatest, testLink); err != nil {
+		return err
+	}
+	return w.updateLink(testLightCurrent, testLightLatest, testLightLink)
+}
+
+func (w *Worker) updateLink(current string, latest string, link string) error {
 	// check if current exists
-	if _, err := os.Lstat(testCurrent); err != nil {
+	if _, err := os.Lstat(current); err != nil {
 		return err
 	}
 
 	// check if symlink exists
-	dst, err := os.Readlink(testLatest)
+	dst, err := os.Readlink(latest)
 
 	// if no symlink, then create it
 	if os.IsNotExist(err) {
-		log.Info().Str("from", testLatest).Str("to", testCurrent).Msg("linking")
-		return os.Symlink(link, testLatest)
+		log.Info().Str("from", latest).Str("to", current).Msg("linking")
+		return os.Symlink(link, latest)
 	} else if err != nil {
 		return err
 	}
 
 	// check if symlink is valid and exists
-	if filepath.Base(dst) == filepath.Base(testCurrent) {
-		log.Debug().Msgf("symlink %v to %v already exists", testCurrent, testLatest)
+	if filepath.Base(dst) == filepath.Base(current) {
+		log.Debug().Msgf("symlink %v to %v already exists", current, latest)
 		return nil
 	}
 
 	// remove symlink if it is not valid and exists
-	if err := os.Remove(testLatest); err != nil {
+	if err := os.Remove(latest); err != nil {
 		return err
 	}
 
-	log.Info().Str("from", testLatest).Str("to", testCurrent).Msg("linking")
-	return os.Symlink(link, testLatest)
+	log.Info().Str("from", latest).Str("to", current).Msg("linking")
+	return os.Symlink(link, latest)
 }
 
 // UpdateWithInterval updates the latest test flist for a specific network with the updated test version
