@@ -112,6 +112,7 @@ func (w *Worker) updateZosVersion(network Network, manager client.Manager) error
 	type ChainVersion struct {
 		SafeToUpgrade bool   `json:"safe_to_upgrade"`
 		Version       string `json:"version"`
+		VersionLight  string `json:"version_light"`
 	}
 
 	var chainVersion ChainVersion
@@ -119,6 +120,7 @@ func (w *Worker) updateZosVersion(network Network, manager client.Manager) error
 	if err != nil {
 		log.Debug().Err(err).Msg("failed to unmarshal chain version")
 		chainVersion.Version = currentZosVersion
+		chainVersion.VersionLight = currentZosVersion
 	}
 
 	log.Debug().Msgf("getting substrate version %v for network %v", chainVersion.Version, network)
@@ -133,13 +135,14 @@ func (w *Worker) updateZosVersion(network Network, manager client.Manager) error
 	testCurrent := fmt.Sprintf("%v/.tag-%v", w.src, chainVersion.Version)
 	testLatest := fmt.Sprintf("%v/%v", w.dst, network)
 	// test light
-	testLightCurrent := fmt.Sprintf("%v/.tag-%v", w.src, chainVersion.Version)
+	// to handle the environments that aren't updated yet (mainnet)
+	testLightCurrent := fmt.Sprintf("%v/.tag-%v", w.src, chainVersion.VersionLight)
 	testLightLatest := fmt.Sprintf("%v/%v-v4", w.dst, network)
 	// the link is like testCurrent but it has the path relative from the symlink
 	// point of view (so relative to the symlink, how to reach testCurrent)
 	// hence the link is instead used in all calls to symlink
 	testLink := fmt.Sprintf("%v/.tag-%v", path, chainVersion.Version)
-	testLightLink := fmt.Sprintf("%v/.tag-%v", path, chainVersion.Version)
+	testLightLink := fmt.Sprintf("%v/.tag-%v", path, chainVersion.VersionLight)
 
 	// update links for both test and testlight
 	if err = w.updateLink(testCurrent, testLatest, testLink); err != nil {
